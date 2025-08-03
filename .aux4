@@ -52,15 +52,13 @@
           "name": "write",
           "execute": [
             "aux4 repository init --db ${db} --repository ${repository}",
-            "stdin:if(data) && echo '${data}' > /tmp/raw_input.json || cat > /tmp/raw_input.json",
-            "jq -c . /tmp/raw_input.json > /tmp/input.json",
+            "stdin:if(data) && echo '${data}' > /tmp/input.json || cat > /tmp/input.json",
             "set:key=!if(id) && echo '${id}' || (jq -r '.id // empty' /tmp/input.json | grep -q . && jq -r '.id' /tmp/input.json) || uuidgen",
-            "jq -c 'del(.id)' /tmp/input.json | sed -e 's/\"/\\\\\"/g' -e \"s/'/''/g\" > /tmp/data.json",
-            "set:data=!cat /tmp/data.json",
+            "set:data=!jq -c 'del(.id)' /tmp/input.json | sed -e 's/\"/\\\\\"/g' -e \"s/'/''/g\"",
             "set:metadata_escaped=!echo value(metadata) | jq -c . | sed -e 's/\"/\\\\\"/g' -e \"s/'/''/g\"",
             "cat ${packageDir}/sql/insert.sql | sed -e 's/TABLE_NAME/${repository}/g' | sed -e 's/KEY/${key}/g' | sed -e 's/JSON_DATA/${data}/g' | sed -e 's/METADATA/${metadata_escaped}/g' > /tmp/insert.sql",
             "sqlite3 ${db} < /tmp/insert.sql",
-            "rm -f /tmp/insert.sql /tmp/data.json /tmp/input.json /tmp/raw_input.json",
+            "rm -f /tmp/insert.sql /tmp/input.json",
             "log:${key}"
           ],
           "help": {
@@ -127,10 +125,14 @@
           "name": "find",
           "execute": [
             "aux4 repository init --db ${db} --repository ${repository}",
-            "sqlite3 -json ${db} \"SELECT data FROM ${repository} WHERE CAST(json_extract(data, '$.${field}') AS TEXT) ${op} value(term)\" | jq 'map(.data | fromjson)'"
+            "echo value(expr) > /tmp/where.txt",
+            "sed -i '' -E \"s/([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(=|!=|<>|<=|>=|<|>|like|not like)[[:space:]]*('[^']*'|[^[:space:]]+)/json_extract(data, '$.\\1') \\2 \\3/gi\" /tmp/where.txt",
+            "set:where_clause=!cat '/tmp/where.txt'",
+            "sqlite3 -json ${db} \"SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE ${where_clause}\" | jq 'map(. as $row | ({\"id\": $row.id} + ($row.data | fromjson)) + {\"$metadata\": (($row.metadata | fromjson) + {\"createdAt\": $row.created_at, \"updatedAt\": $row.updated_at})})'",
+            "rm -f /tmp/expr.txt /tmp/where.txt"
           ],
           "help": {
-            "text": "Find in the aux4 repository",
+            "text": "Find in the aux4 repository using SQL expressions",
             "variables": [
               {
                 "name": "db",
@@ -143,17 +145,8 @@
                 "arg": true
               },
               {
-                "name": "field",
-                "text": "The field to search for in the repository"
-              },
-              {
-                "name": "op",
-                "text": "The comparison operator to use (e.g., =, <>, <, >, <=, >=, like)",
-                "default": "="
-              },
-              {
-                "name": "term",
-                "text": "The term to search for in the field"
+                "name": "expr",
+                "text": "SQL expression for filtering (e.g., 'age > 30 and name like \"%John%\"')"
               }
             ]
           }
