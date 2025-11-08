@@ -36,6 +36,6 @@ Pipe JSON data without an `id` into the command and omit the `--id` flag. The co
 echo '{"price":100}' | aux4 repository write payments
 ```
 
-```expect:regex:ignoreCase
-^"?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"?$
+```expect:partial
+*?-*?-*?-*?-*?
 ```

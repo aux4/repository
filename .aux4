@@ -1,14 +1,222 @@
 {
+  "scope": "aux4",
+  "name": "repository",
+  "version": "0.0.2",
+  "description": "Simplified aux4 database",
+  "tags": [
+    "aux4",
+    "database",
+    "repository"
+  ],
+  "system": [
+    [
+      "test:jq",
+      "brew:jq",
+      "apt:jq",
+      "linux:jq"
+    ],
+    [
+      "test:sqlite3",
+      "brew:sqlite",
+      "apt:sqlite3"
+    ]
+  ],
   "profiles": [
     {
       "name": "main",
       "commands": [
         {
-          "name": "build",
+          "name": "repository",
           "execute": [
+            "profile:repository"
           ],
           "help": {
-            "text": "Build the project"
+            "text": "Simplified aux4 database"
+          }
+        }
+      ]
+    },
+    {
+      "name": "repository",
+      "commands": [
+        {
+          "name": "init",
+          "private": true,
+          "execute": [
+            "sqlite3 ${db} \"SELECT name FROM sqlite_master WHERE type = 'table' and name = '${repository}'\" | grep -q ${repository} || cat ${packageDir}/sql/create.sql | sed 's/TABLE_NAME/${repository}/g' | sqlite3 ${db}"
+          ],
+          "help": {
+            "text": "Initialize the aux4 repository",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to initialize",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to initialize",
+                "arg": true
+              }
+            ]
+          }
+        },
+        {
+          "name": "write",
+          "execute": [
+            "aux4 repository init --db ${db} --repository ${repository}",
+            "stdin:if(data) && echo '${data}' > /tmp/input.json || cat > /tmp/input.json",
+            "set:key=!if(id) && echo '${id}' || (jq -r '.id // empty' /tmp/input.json | grep -q . && jq -r '.id' /tmp/input.json) || uuidgen",
+            "set:data=!jq -c 'del(.id)' /tmp/input.json | sed -e 's/\"/\\\\\"/g' -e \"s/'/''/g\"",
+            "set:metadata_escaped=!echo value(metadata) | jq -c . | sed -e 's/\"/\\\\\"/g' -e \"s/'/''/g\"",
+            "cat ${packageDir}/sql/insert.sql | sed -e 's/TABLE_NAME/${repository}/g' | sed -e 's/KEY/${key}/g' | sed -e 's/JSON_DATA/${data}/g' | sed -e 's/METADATA/${metadata_escaped}/g' > /tmp/insert.sql",
+            "sqlite3 ${db} < /tmp/insert.sql",
+            "rm -f /tmp/insert.sql /tmp/input.json",
+            "log:${key}"
+          ],
+          "help": {
+            "text": "Write to the aux4 repository",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to write to",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to write to",
+                "arg": true
+              },
+              {
+                "name": "id",
+                "text": "The id to write to the repository",
+                "default": ""
+              },
+              {
+                "name": "data",
+                "text": "The data to write to the repository (JSON string)",
+                "default": ""
+              },
+              {
+                "name": "metadata",
+                "text": "Optional metadata to store with the record",
+                "default": "{}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "read",
+          "execute": [
+            "aux4 repository init --db ${db} --repository ${repository}",
+            "nout:if(id) && echo \"SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE id = value(id)\" || echo \"SELECT id, data, metadata, created_at, updated_at FROM ${repository}\"",
+            "set:sql=${response}",
+            "sqlite3 -json ${db} \"${sql}\" > /tmp/read_result.json",
+            "if [ -s /tmp/read_result.json ]; then cat /tmp/read_result.json | jq 'map(. as $row | ({\"id\": $row.id} + ($row.data | fromjson)) + {\"$metadata\": (($row.metadata | fromjson) + {\"createdAt\": $row.created_at, \"updatedAt\": $row.updated_at})})'; else echo '[]' && exit 4; fi",
+            "rm -f /tmp/read_result.json"
+          ],
+          "help": {
+            "text": "Read from the aux4 repository",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to read from",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to read from",
+                "arg": true
+              },
+              {
+                "name": "id",
+                "text": "The id to read from the repository",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "find",
+          "execute": [
+            "aux4 repository init --db ${db} --repository ${repository}",
+            "echo value(expr) > /tmp/where.txt",
+            "sed -i '' -E \"s/([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(=|!=|<>|<=|>=|<|>|like|not like)[[:space:]]*('[^']*'|[^[:space:]]+)/json_extract(data, '$.\\1') \\2 \\3/gi\" /tmp/where.txt",
+            "set:where_clause=!cat '/tmp/where.txt'",
+            "sqlite3 -json ${db} \"SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE ${where_clause}\" > /tmp/result.json",
+            "if [ -s /tmp/result.json ]; then cat /tmp/result.json | jq 'map(. as $row | ({\"id\": $row.id} + ($row.data | fromjson)) + {\"$metadata\": (($row.metadata | fromjson) + {\"createdAt\": $row.created_at, \"updatedAt\": $row.updated_at})})'; else echo '[]' && exit 4; fi",
+            "rm -f /tmp/where.txt /tmp/result.json"
+          ],
+          "help": {
+            "text": "Find in the aux4 repository using SQL expressions",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to find in",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to find in",
+                "arg": true
+              },
+              {
+                "name": "expr",
+                "text": "SQL expression for filtering (e.g., 'age > 30 and name like \"%John%\"')"
+              }
+            ]
+          }
+        },
+        {
+          "name": "delete",
+          "execute": [
+            "aux4 repository init --db ${db} --repository ${repository}",
+            "set:ids_json=value(id*)",
+            "echo ${ids_json} | sed 's/\\[//' | sed 's/\\]//' | sed \"s/\\\"/'/g\"",
+            "sqlite3 ${db} \"DELETE FROM ${repository} WHERE id IN ($response)\""
+          ],
+          "help": {
+            "text": "Delete from the aux4 repository",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to delete from",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to delete from",
+                "arg": true
+              },
+              {
+                "name": "id",
+                "text": "The id to delete from the repository",
+                "multiple": true
+              }
+            ]
+          }
+        },
+        {
+          "name": "truncate",
+          "execute": [
+            "confirm:Are you sure you want to truncate the repository '${repository}'? This will delete all records.",
+            "aux4 repository init --db ${db} --repository ${repository}",
+            "sqlite3 ${db} \"DELETE FROM ${repository}\""
+          ],
+          "help": {
+            "text": "Truncate the aux4 repository (delete all records)",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to truncate",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to truncate",
+                "arg": true
+              }
+            ]
           }
         }
       ]

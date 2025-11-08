@@ -1,0 +1,5 @@
+Truncates all records from the named repository. When run the command prompts for confirmation, then ensures the repository table exists and executes a DELETE on the table, removing every row. This operation is destructive and irreversible — it clears stored data but does not drop or alter the table schema itself.
+
+The command relies on the package's repository initialization to create the table if necessary, then runs a plain SQL DELETE against the repository table in the configured database (default: .local.db). Because it only removes rows, existing schema, indexes and metadata definitions remain intact; associated created/updated timestamps and any stored metadata are deleted along with the records.
+
+Use this command when you need to clear a repository completely. If you want to remove specific records instead of wiping everything, use the delete command or read records first to verify what will be removed: [aux4 repository delete](../delete) and [aux4 repository read](../read). Be sure you have backups or exported copies of important data before running this command.
