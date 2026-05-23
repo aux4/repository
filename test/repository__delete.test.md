@@ -30,12 +30,7 @@ aux4 repository read users
   {
     "id": "user2",
     "name": "Jane",
-    "age": 25,
-    "__metadata": {
-      "role": "user",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "age": 25
   }
 ]
 ```
@@ -64,12 +59,7 @@ aux4 repository read products
   {
     "id": "prod2",
     "name": "Gadget",
-    "price": 29.99,
-    "__metadata": {
-      "category": "electronics",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "price": 29.99
   }
 ]
 ```
@@ -94,11 +84,7 @@ aux4 repository read items
 [
   {
     "id": "item1",
-    "name": "Test Item",
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "name": "Test Item"
   }
 ]
 ```
@@ -185,20 +171,12 @@ aux4 repository read logs
   {
     "id": "log1",
     "level": "info",
-    "message": "Started",
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "message": "Started"
   },
   {
     "id": "log3",
     "level": "warn",
-    "message": "Warning",
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "message": "Warning"
   }
 ]
 ```

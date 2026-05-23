@@ -30,11 +30,7 @@ aux4 repository read users --id user_stdin
     "id": "user_stdin",
     "name": "Alice",
     "email": "alice@example.com",
-    "age": 28,
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "age": 28
   }
 ]
 ```
@@ -98,10 +94,6 @@ aux4 repository read orders --id complex_order
         "tax": 5.22,
         "total": 63.19
       }
-    },
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
     }
   }
 ]
@@ -129,14 +121,7 @@ aux4 repository read documents --id doc1
     "id": "doc1",
     "title": "Important Document",
     "content": "This is a test document",
-    "version": "1.2",
-    "__metadata": {
-      "author": "John Doe",
-      "department": "Engineering",
-      "classification": "internal",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "version": "1.2"
   }
 ]
 ```
@@ -162,11 +147,7 @@ aux4 repository read items --id from_json
   {
     "id": "from_json",
     "name": "Test Item",
-    "description": "Item with id in JSON",
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "description": "Item with id in JSON"
   }
 ]
 ```
@@ -192,11 +173,7 @@ aux4 repository read tests --id override_id
   {
     "id": "override_id",
     "name": "Override Test",
-    "value": 42,
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "value": 42
   }
 ]
 ```
@@ -229,10 +206,6 @@ aux4 repository read special_data --id special_chars_unique
     ],
     "config": {
       "enabled": true
-    },
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
     }
   }
 ]
@@ -298,10 +271,6 @@ aux4 repository read bulk --id bulk_data
         "sms": false,
         "push": true
       }
-    },
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
     }
   }
 ]

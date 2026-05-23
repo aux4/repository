@@ -63,32 +63,17 @@ aux4 repository read products
   {
     "id": "prod1",
     "name": "Widget",
-    "price": 19.99,
-    "__metadata": {
-      "category": "electronics",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "price": 19.99
   },
   {
     "id": "prod2",
     "name": "Gadget",
-    "price": 29.99,
-    "__metadata": {
-      "category": "electronics",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "price": 29.99
   },
   {
     "id": "prod3",
     "name": "Tool",
-    "price": 39.99,
-    "__metadata": {
-      "category": "hardware",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "price": 39.99
   }
 ]
 ```
@@ -123,12 +108,7 @@ aux4 repository read orders
 [
   {
     "id": "order2",
-    "total": 200,
-    "__metadata": {
-      "status": "completed",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "total": 200
   }
 ]
 ```
@@ -162,11 +142,7 @@ aux4 repository read products
 [
   {
     "id": "prod1",
-    "name": "Widget",
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "name": "Widget"
   }
 ]
 ```

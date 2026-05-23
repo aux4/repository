@@ -40,12 +40,7 @@ aux4 repository find users --expr "name = 'John'"
     "id": "user1",
     "name": "John",
     "age": 30,
-    "city": "NYC",
-    "__metadata": {
-      "role": "admin",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "city": "NYC"
   }
 ]
 ```
@@ -64,23 +59,13 @@ aux4 repository find users --expr "age > 28"
     "id": "user1",
     "name": "John",
     "age": 30,
-    "city": "NYC",
-    "__metadata": {
-      "role": "admin",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "city": "NYC"
   },
   {
     "id": "user3",
     "name": "Bob",
     "age": 35,
-    "city": "NYC",
-    "__metadata": {
-      "role": "user",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "city": "NYC"
   }
 ]
 ```
@@ -99,23 +84,13 @@ aux4 repository find users --expr "name like '%o%'"
     "id": "user1",
     "name": "John",
     "age": 30,
-    "city": "NYC",
-    "__metadata": {
-      "role": "admin",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "city": "NYC"
   },
   {
     "id": "user3",
     "name": "Bob",
     "age": 35,
-    "city": "NYC",
-    "__metadata": {
-      "role": "user",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "city": "NYC"
   }
 ]
 ```
@@ -134,12 +109,7 @@ aux4 repository find users --expr "city = 'NYC' and age < 35"
     "id": "user1",
     "name": "John",
     "age": 30,
-    "city": "NYC",
-    "__metadata": {
-      "role": "admin",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "city": "NYC"
   }
 ]
 ```
@@ -158,23 +128,13 @@ aux4 repository find users --expr "age != 30"
     "id": "user2",
     "name": "Jane",
     "age": 25,
-    "city": "LA",
-    "__metadata": {
-      "role": "user",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "city": "LA"
   },
   {
     "id": "user3",
     "name": "Bob",
     "age": 35,
-    "city": "NYC",
-    "__metadata": {
-      "role": "user",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "city": "NYC"
   }
 ]
 ```
@@ -201,12 +161,7 @@ aux4 repository find orders --expr "total > 30"
       "email": "bob@example.com"
     },
     "total": 45.50,
-    "status": "completed",
-    "__metadata": {
-      "priority": "low",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "status": "completed"
   }
 ]
 ```
@@ -243,12 +198,7 @@ aux4 repository find products --expr "inStock = 1"
     "name": "Widget",
     "price": 19.99,
     "inStock": true,
-    "featured": false,
-    "__metadata": {
-      "category": "electronics",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "featured": false
   }
 ]
 ```

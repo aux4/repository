@@ -38,22 +38,12 @@ aux4 repository read users
   {
     "id": "user1",
     "name": "John",
-    "age": 30,
-    "__metadata": {
-      "role": "admin",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "age": 30
   },
   {
     "id": "user2",
     "name": "Jane",
-    "age": 25,
-    "__metadata": {
-      "role": "user",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "age": 25
   }
 ]
 ```
@@ -76,12 +66,7 @@ aux4 repository read products --id prod123
     "id": "prod123",
     "name": "Widget",
     "price": 19.99,
-    "inStock": true,
-    "__metadata": {
-      "category": "electronics",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "inStock": true
   }
 ]
 ```
@@ -128,13 +113,7 @@ aux4 repository read orders --id order1
         "qty": 1
       }
     ],
-    "total": 29.98,
-    "__metadata": {
-      "status": "pending",
-      "priority": "high",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
+    "total": 29.98
   }
 ]
 ```
@@ -148,7 +127,7 @@ aux4 repository write settings --id config1 --data '{"theme":"dark","notificatio
 ```
 
 ```execute
-aux4 repository read settings --id config1
+aux4 repository read settings --id config1 --raw true
 ```
 
 ```expect:partial
@@ -176,7 +155,7 @@ aux4 repository write logs --id log1 --data '{"level":"info","message":"System s
 ```
 
 ```execute
-aux4 repository read logs --id log1
+aux4 repository read logs --id log1 --raw true
 ```
 
 ```expect:partial
