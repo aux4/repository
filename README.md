@@ -59,7 +59,7 @@ For full command docs see [aux4 repository write](./commands/repository/write).
 
 ## Reading data (read)
 
-The read command returns stored records as JSON. By default it reads all rows; use --id to select a single record. Each returned object contains an id and the fields from the stored JSON, plus a $metadata object that merges stored metadata with createdAt and updatedAt timestamps.
+The read command returns stored records as JSON. By default it reads all rows; use --id to select a single record. Each returned object contains an id and the fields from the stored JSON, plus a __metadata object that merges stored metadata with createdAt and updatedAt timestamps.
 
 Example — write two records then read all:
 
@@ -77,7 +77,7 @@ Example expected output (excerpt):
     "id": "user1",
     "name": "John",
     "age": 30,
-    "$metadata": {
+    "__metadata": {
       "role": "admin",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -87,7 +87,7 @@ Example expected output (excerpt):
     "id": "user2",
     "name": "Jane",
     "age": 25,
-    "$metadata": {
+    "__metadata": {
       "role": "user",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -117,7 +117,7 @@ Example expected output (excerpt):
     "name": "John",
     "age": 30,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "admin",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -207,7 +207,7 @@ Expected output (excerpt):
       }
     ],
     "total": 29.98,
-    "$metadata": {
+    "__metadata": {
       "status": "pending",
       "priority": "high",
       "createdAt": "*?",
@@ -237,7 +237,7 @@ Expected output (excerpt):
     "name": "John",
     "age": 30,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "admin",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -248,7 +248,7 @@ Expected output (excerpt):
     "name": "Bob",
     "age": 35,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "user",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -278,7 +278,7 @@ Expected output (excerpt):
     "id": "prod2",
     "name": "Gadget",
     "price": 29.99,
-    "$metadata": {
+    "__metadata": {
       "category": "electronics",
       "createdAt": "*?",
       "updatedAt": "*?"

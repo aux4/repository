@@ -39,7 +39,7 @@ aux4 repository read users
     "id": "user1",
     "name": "John",
     "age": 30,
-    "$metadata": {
+    "__metadata": {
       "role": "admin",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -49,7 +49,7 @@ aux4 repository read users
     "id": "user2",
     "name": "Jane",
     "age": 25,
-    "$metadata": {
+    "__metadata": {
       "role": "user",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -77,7 +77,7 @@ aux4 repository read products --id prod123
     "name": "Widget",
     "price": 19.99,
     "inStock": true,
-    "$metadata": {
+    "__metadata": {
       "category": "electronics",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -129,7 +129,7 @@ aux4 repository read orders --id order1
       }
     ],
     "total": 29.98,
-    "$metadata": {
+    "__metadata": {
       "status": "pending",
       "priority": "high",
       "createdAt": "*?",
@@ -157,7 +157,7 @@ aux4 repository read settings --id config1
     "id": "config1",
     "theme": "dark",
     "notifications": true,
-    "$metadata": {
+    "__metadata": {
       "environment": "production",
       "version": "1.0",
       "createdAt": "*?",
@@ -185,7 +185,7 @@ aux4 repository read logs --id log1
     "id": "log1",
     "level": "info",
     "message": "System started",
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }

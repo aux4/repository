@@ -41,7 +41,7 @@ aux4 repository find users --expr "name = 'John'"
     "name": "John",
     "age": 30,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "admin",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -65,7 +65,7 @@ aux4 repository find users --expr "age > 28"
     "name": "John",
     "age": 30,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "admin",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -76,7 +76,7 @@ aux4 repository find users --expr "age > 28"
     "name": "Bob",
     "age": 35,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "user",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -100,7 +100,7 @@ aux4 repository find users --expr "name like '%o%'"
     "name": "John",
     "age": 30,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "admin",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -111,7 +111,7 @@ aux4 repository find users --expr "name like '%o%'"
     "name": "Bob",
     "age": 35,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "user",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -135,7 +135,7 @@ aux4 repository find users --expr "city = 'NYC' and age < 35"
     "name": "John",
     "age": 30,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "admin",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -159,7 +159,7 @@ aux4 repository find users --expr "age != 30"
     "name": "Jane",
     "age": 25,
     "city": "LA",
-    "$metadata": {
+    "__metadata": {
       "role": "user",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -170,7 +170,7 @@ aux4 repository find users --expr "age != 30"
     "name": "Bob",
     "age": 35,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "user",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -202,7 +202,7 @@ aux4 repository find orders --expr "total > 30"
     },
     "total": 45.50,
     "status": "completed",
-    "$metadata": {
+    "__metadata": {
       "priority": "low",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -244,7 +244,7 @@ aux4 repository find products --expr "inStock = 1"
     "price": 19.99,
     "inStock": true,
     "featured": false,
-    "$metadata": {
+    "__metadata": {
       "category": "electronics",
       "createdAt": "*?",
       "updatedAt": "*?"

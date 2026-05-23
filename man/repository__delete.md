@@ -24,7 +24,7 @@ Expected result (user2 remains):
     "id": "user2",
     "name": "Jane",
     "age": 25,
-    "$metadata": {
+    "__metadata": {
       "role": "user",
       "createdAt": "...",
       "updatedAt": "..."

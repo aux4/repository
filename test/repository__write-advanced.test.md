@@ -31,7 +31,7 @@ aux4 repository read users --id user_stdin
     "name": "Alice",
     "email": "alice@example.com",
     "age": 28,
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -99,7 +99,7 @@ aux4 repository read orders --id complex_order
         "total": 63.19
       }
     },
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -130,7 +130,7 @@ aux4 repository read documents --id doc1
     "title": "Important Document",
     "content": "This is a test document",
     "version": "1.2",
-    "$metadata": {
+    "__metadata": {
       "author": "John Doe",
       "department": "Engineering",
       "classification": "internal",
@@ -163,7 +163,7 @@ aux4 repository read items --id from_json
     "id": "from_json",
     "name": "Test Item",
     "description": "Item with id in JSON",
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -193,7 +193,7 @@ aux4 repository read tests --id override_id
     "id": "override_id",
     "name": "Override Test",
     "value": 42,
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -230,7 +230,7 @@ aux4 repository read special_data --id special_chars_unique
     "config": {
       "enabled": true
     },
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -299,7 +299,7 @@ aux4 repository read bulk --id bulk_data
         "push": true
       }
     },
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }

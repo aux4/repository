@@ -31,7 +31,7 @@ aux4 repository read users
     "id": "user2",
     "name": "Jane",
     "age": 25,
-    "$metadata": {
+    "__metadata": {
       "role": "user",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -65,7 +65,7 @@ aux4 repository read products
     "id": "prod2",
     "name": "Gadget",
     "price": 29.99,
-    "$metadata": {
+    "__metadata": {
       "category": "electronics",
       "createdAt": "*?",
       "updatedAt": "*?"
@@ -95,7 +95,7 @@ aux4 repository read items
   {
     "id": "item1",
     "name": "Test Item",
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -186,7 +186,7 @@ aux4 repository read logs
     "id": "log1",
     "level": "info",
     "message": "Started",
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -195,7 +195,7 @@ aux4 repository read logs
     "id": "log3",
     "level": "warn",
     "message": "Warning",
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }

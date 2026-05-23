@@ -81,7 +81,7 @@ aux4 repository read custom_test --db .custom_location.db --id item1
   {
     "id": "item1",
     "location": "custom",
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -145,7 +145,7 @@ aux4 repository read unicode_test --id unicode1
     "japanese": "こんにちは",
     "arabic": "مرحبا",
     "russian": "Привет",
-    "$metadata": {
+    "__metadata": {
       "locale": "pt-BR",
       "encoding": "UTF-8",
       "createdAt": "*?",

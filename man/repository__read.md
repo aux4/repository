@@ -1,4 +1,4 @@
-Reads records from a named aux4 repository and returns them as a JSON array. The command ensures the repository exists (initializing it if necessary) and then returns records flattened so that each item contains an "id" field plus the original JSON data fields. Record-level metadata is merged into a single "$metadata" object which always includes system timestamps (createdAt and updatedAt).
+Reads records from a named aux4 repository and returns them as a JSON array. The command ensures the repository exists (initializing it if necessary) and then returns records flattened so that each item contains an "id" field plus the original JSON data fields. Record-level metadata is merged into a single "__metadata" object which always includes system timestamps (createdAt and updatedAt).
 
 When an --id is provided, the command returns an array with the single matching record (or an empty array if none found). When no --id is supplied it returns all records in the repository as an array. If the repository has no records the command prints an empty array and exits with a non-zero status (exit code 4 in tests), making it easy to detect an empty result programmatically.
 
@@ -6,7 +6,7 @@ Use this command when you need to retrieve stored JSON objects from an aux4 repo
 
 ### Example: Read all records from a repository
 
-This reads every record stored in the users repository and returns them as an array. Each item contains the record's id, the stored data fields, and a merged "$metadata" object with createdAt/updatedAt timestamps.
+This reads every record stored in the users repository and returns them as an array. Each item contains the record's id, the stored data fields, and a merged "__metadata" object with createdAt/updatedAt timestamps.
 
 ```bash
 aux4 repository read users
@@ -18,7 +18,7 @@ aux4 repository read users
     "id": "user1",
     "name": "John",
     "age": 30,
-    "$metadata": {
+    "__metadata": {
       "role": "admin",
       "createdAt": "2023-01-01T12:00:00Z",
       "updatedAt": "2023-01-01T12:00:00Z"
@@ -28,7 +28,7 @@ aux4 repository read users
     "id": "user2",
     "name": "Jane",
     "age": 25,
-    "$metadata": {
+    "__metadata": {
       "role": "user",
       "createdAt": "2023-01-01T12:01:00Z",
       "updatedAt": "2023-01-01T12:01:00Z"
@@ -52,7 +52,7 @@ aux4 repository read products --id prod123
     "name": "Widget",
     "price": 19.99,
     "inStock": true,
-    "$metadata": {
+    "__metadata": {
       "category": "electronics",
       "createdAt": "2023-01-01T12:10:00Z",
       "updatedAt": "2023-01-01T12:10:00Z"

@@ -1,7 +1,7 @@
 {
   "scope": "aux4",
   "name": "repository",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Simplified aux4 database",
   "tags": [
     "aux4",
@@ -112,7 +112,7 @@
             "nout:if(id) && echo \"SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE id = value(id)\" || echo \"SELECT id, data, metadata, created_at, updated_at FROM ${repository}\"",
             "set:sql=${response}",
             "sqlite3 -json ${db} \"${sql}\" > /tmp/read_result.json",
-            "if [ -s /tmp/read_result.json ]; then cat /tmp/read_result.json | jq 'map(. as $row | ({\"id\": $row.id} + ($row.data | fromjson)) + {\"$metadata\": (($row.metadata | fromjson) + {\"createdAt\": $row.created_at, \"updatedAt\": $row.updated_at})})'; else echo '[]' && exit 4; fi",
+            "if [ -s /tmp/read_result.json ]; then cat /tmp/read_result.json | jq 'map(. as $row | ({\"id\": $row.id} + ($row.data | fromjson)) + {\"__metadata\": (($row.metadata | fromjson) + {\"createdAt\": $row.created_at, \"updatedAt\": $row.updated_at})})'; else echo '[]' && exit 4; fi",
             "rm -f /tmp/read_result.json"
           ],
           "help": {
@@ -144,7 +144,7 @@
             "sed -i '' -E \"s/([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(=|!=|<>|<=|>=|<|>|like|not like)[[:space:]]*('[^']*'|[^[:space:]]+)/json_extract(data, '$.\\1') \\2 \\3/gi\" /tmp/where.txt",
             "set:where_clause=!cat '/tmp/where.txt'",
             "sqlite3 -json ${db} \"SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE ${where_clause}\" > /tmp/result.json",
-            "if [ -s /tmp/result.json ]; then cat /tmp/result.json | jq 'map(. as $row | ({\"id\": $row.id} + ($row.data | fromjson)) + {\"$metadata\": (($row.metadata | fromjson) + {\"createdAt\": $row.created_at, \"updatedAt\": $row.updated_at})})'; else echo '[]' && exit 4; fi",
+            "if [ -s /tmp/result.json ]; then cat /tmp/result.json | jq 'map(. as $row | ({\"id\": $row.id} + ($row.data | fromjson)) + {\"__metadata\": (($row.metadata | fromjson) + {\"createdAt\": $row.created_at, \"updatedAt\": $row.updated_at})})'; else echo '[]' && exit 4; fi",
             "rm -f /tmp/where.txt /tmp/result.json"
           ],
           "help": {

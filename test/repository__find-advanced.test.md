@@ -47,7 +47,7 @@ aux4 repository find products --expr "price <= 250"
       "buttons": 8,
       "wireless": true
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "GameGear",
       "warehouse": "US-West",
       "createdAt": "*?",
@@ -71,7 +71,7 @@ aux4 repository find products --expr "price <= 250"
       "adjustable": true,
       "warranty": "5 years"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "FurniCo",
       "warehouse": "EU-Central",
       "createdAt": "*?",
@@ -95,7 +95,7 @@ aux4 repository find products --expr "price <= 250"
       "noise_reduction": true,
       "color": "black"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "AudioTech",
       "warehouse": "US-East",
       "createdAt": "*?",
@@ -132,7 +132,7 @@ aux4 repository find products --expr "rating >= 4.5"
       "ram": "16GB",
       "storage": "512GB SSD"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "TechCorp",
       "warehouse": "US-East",
       "createdAt": "*?",
@@ -156,7 +156,7 @@ aux4 repository find products --expr "rating >= 4.5"
       "buttons": 8,
       "wireless": true
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "GameGear",
       "warehouse": "US-West",
       "createdAt": "*?",
@@ -180,7 +180,7 @@ aux4 repository find products --expr "rating >= 4.5"
       "noise_reduction": true,
       "color": "black"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "AudioTech",
       "warehouse": "US-East",
       "createdAt": "*?",
@@ -217,7 +217,7 @@ aux4 repository find products --expr "category != 'electronics'"
       "adjustable": true,
       "warranty": "5 years"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "FurniCo",
       "warehouse": "EU-Central",
       "createdAt": "*?",
@@ -241,7 +241,7 @@ aux4 repository find products --expr "category != 'electronics'"
       "material": "bamboo",
       "weight_capacity": "150 lbs"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "FurniCo",
       "warehouse": "EU-Central",
       "createdAt": "*?",
@@ -274,7 +274,7 @@ aux4 repository find products --expr "category <> 'furniture'"
       "ram": "16GB",
       "storage": "512GB SSD"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "TechCorp",
       "warehouse": "US-East",
       "createdAt": "*?",
@@ -298,7 +298,7 @@ aux4 repository find products --expr "category <> 'furniture'"
       "buttons": 8,
       "wireless": true
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "GameGear",
       "warehouse": "US-West",
       "createdAt": "*?",
@@ -322,7 +322,7 @@ aux4 repository find products --expr "category <> 'furniture'"
       "noise_reduction": true,
       "color": "black"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "AudioTech",
       "warehouse": "US-East",
       "createdAt": "*?",
@@ -359,7 +359,7 @@ aux4 repository find products --expr "name not like '%Gaming%'"
       "ram": "16GB",
       "storage": "512GB SSD"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "TechCorp",
       "warehouse": "US-East",
       "createdAt": "*?",
@@ -383,7 +383,7 @@ aux4 repository find products --expr "name not like '%Gaming%'"
       "adjustable": true,
       "warranty": "5 years"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "FurniCo",
       "warehouse": "EU-Central",
       "createdAt": "*?",
@@ -407,7 +407,7 @@ aux4 repository find products --expr "name not like '%Gaming%'"
       "noise_reduction": true,
       "color": "black"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "AudioTech",
       "warehouse": "US-East",
       "createdAt": "*?",
@@ -431,7 +431,7 @@ aux4 repository find products --expr "name not like '%Gaming%'"
       "material": "bamboo",
       "weight_capacity": "150 lbs"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "FurniCo",
       "warehouse": "EU-Central",
       "createdAt": "*?",
@@ -469,7 +469,7 @@ aux4 repository find simple_items --expr "category = 'electronics' or price < 25
     "id": "item1",
     "category": "electronics",
     "price": 100,
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -478,7 +478,7 @@ aux4 repository find simple_items --expr "category = 'electronics' or price < 25
     "id": "item2",
     "category": "furniture",
     "price": 200,
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -487,7 +487,7 @@ aux4 repository find simple_items --expr "category = 'electronics' or price < 25
     "id": "item3",
     "category": "electronics",
     "price": 300,
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -558,7 +558,7 @@ aux4 repository find devices --expr "json_extract(data, '$.specs.wireless') = 1"
       "wireless": true
     },
     "name": "Mouse",
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -593,7 +593,7 @@ aux4 repository find names --expr "name like '%a%' and name like '%e%'"
   {
     "id": "n1",
     "name": "Apple",
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -601,7 +601,7 @@ aux4 repository find names --expr "name like '%a%' and name like '%e%'"
   {
     "id": "n2",
     "name": "Orange",
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -609,7 +609,7 @@ aux4 repository find names --expr "name like '%a%' and name like '%e%'"
   {
     "id": "n3",
     "name": "Grape",
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -667,7 +667,7 @@ aux4 repository find prices --expr "price >= 100 and price <= 200"
   {
     "id": "p2",
     "price": 150,
-    "$metadata": {
+    "__metadata": {
       "createdAt": "*?",
       "updatedAt": "*?"
     }
@@ -762,7 +762,7 @@ aux4 repository find products --expr "length(json_extract(data, '$.category')) >
       "ram": "16GB",
       "storage": "512GB SSD"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "TechCorp",
       "warehouse": "US-East",
       "createdAt": "*?",
@@ -786,7 +786,7 @@ aux4 repository find products --expr "length(json_extract(data, '$.category')) >
       "buttons": 8,
       "wireless": true
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "GameGear",
       "warehouse": "US-West",
       "createdAt": "*?",
@@ -810,7 +810,7 @@ aux4 repository find products --expr "length(json_extract(data, '$.category')) >
       "noise_reduction": true,
       "color": "black"
     },
-    "$metadata": {
+    "__metadata": {
       "vendor": "AudioTech",
       "warehouse": "US-East",
       "createdAt": "*?",

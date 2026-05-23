@@ -1,4 +1,4 @@
-The find command queries records stored in a repository using an SQL-style filtering expression supplied with --expr. It returns a JSON array of matching records; each returned object contains the record id, the fields from the stored JSON object, and a $metadata object that merges any stored metadata with createdAt and updatedAt timestamps. When no records match the expression the command returns an empty array and exits with a non-zero status (useful for scripting).
+The find command queries records stored in a repository using an SQL-style filtering expression supplied with --expr. It returns a JSON array of matching records; each returned object contains the record id, the fields from the stored JSON object, and a __metadata object that merges any stored metadata with createdAt and updatedAt timestamps. When no records match the expression the command returns an empty array and exits with a non-zero status (useful for scripting).
 
 Expressions use standard comparison operators (=, !=, <>, <, <=, >, >=) and the LIKE / NOT LIKE operators with % wildcards for pattern matching. Logical operators (and, or) and parentheses are supported so you can build compound filtering conditions. To query nested JSON fields, use json_extract(...) in the expression (for example: json_extract(data, '$.specs.wireless') = 1). Boolean values are matched using 1 (true) and 0 (false).
 
@@ -20,7 +20,7 @@ Expected result (one matching record):
     "name": "John",
     "age": 30,
     "city": "NYC",
-    "$metadata": {
+    "__metadata": {
       "role": "admin",
       "createdAt": "2021-01-01T...",
       "updatedAt": "2021-01-01T..."
