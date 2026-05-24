@@ -65,13 +65,15 @@
           "name": "write",
           "execute": [
             "aux4 repository init --db ${db} --repository ${repository}",
-            "stdin:if(data) && echo '${data}' > /tmp/input.json || cat > /tmp/input.json",
-            "set:key=!if(id) && echo '${id}' || (jq -r '.id // empty' /tmp/input.json | grep -q . && jq -r '.id' /tmp/input.json) || uuidgen",
-            "set:data=!jq -c 'del(.id)' /tmp/input.json | sed -e 's/\"/\\\\\"/g' -e \"s/'/''/g\"",
+            "set:tmpInput=!mktemp /tmp/aux4_input.XXXXXX",
+            "set:tmpInsert=!mktemp /tmp/aux4_insert.XXXXXX",
+            "stdin:if(data) && echo '${data}' > ${tmpInput} || cat > ${tmpInput}",
+            "set:key=!if(id) && echo '${id}' || (jq -r '.id // empty' ${tmpInput} | grep -q . && jq -r '.id' ${tmpInput}) || uuidgen",
+            "set:data=!jq -c 'del(.id)' ${tmpInput} | sed -e 's/\"/\\\\\"/g' -e \"s/'/''/g\"",
             "set:metadata_escaped=!echo value(metadata) | jq -c . | sed -e 's/\"/\\\\\"/g' -e \"s/'/''/g\"",
-            "cat ${packageDir}/sql/insert.sql | sed -e 's/TABLE_NAME/${repository}/g' | sed -e 's/KEY/${key}/g' | sed -e 's/JSON_DATA/${data}/g' | sed -e 's/METADATA/${metadata_escaped}/g' > /tmp/insert.sql",
-            "sqlite3 ${db} < /tmp/insert.sql",
-            "rm -f /tmp/insert.sql /tmp/input.json",
+            "cat ${packageDir}/sql/insert.sql | sed -e 's/TABLE_NAME/${repository}/g' | sed -e 's/KEY/${key}/g' | sed -e 's/JSON_DATA/${data}/g' | sed -e 's/METADATA/${metadata_escaped}/g' > ${tmpInsert}",
+            "sqlite3 ${db} < ${tmpInsert}",
+            "rm -f ${tmpInsert} ${tmpInput}",
             "log:${key}"
           ],
           "help": {
