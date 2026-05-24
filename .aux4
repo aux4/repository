@@ -66,14 +66,15 @@
           "execute": [
             "aux4 repository init --db ${db} --repository ${repository}",
             "set:tmpInput=!mktemp /tmp/aux4_input.XXXXXX",
-            "set:tmpInsert=!mktemp /tmp/aux4_insert.XXXXXX",
             "stdin:if(data) && echo '${data}' > ${tmpInput} || cat > ${tmpInput}",
             "set:key=!if(id) && echo '${id}' || (jq -r '.id // empty' ${tmpInput} | grep -q . && jq -r '.id' ${tmpInput}) || uuidgen",
-            "set:data=!jq -c 'del(.id)' ${tmpInput} | sed -e 's/\"/\\\\\"/g' -e \"s/'/''/g\"",
-            "set:metadata_escaped=!echo value(metadata) | jq -c . | sed -e 's/\"/\\\\\"/g' -e \"s/'/''/g\"",
-            "cat ${packageDir}/sql/insert.sql | sed -e 's/TABLE_NAME/${repository}/g' | sed -e 's/KEY/${key}/g' | sed -e 's/JSON_DATA/${data}/g' | sed -e 's/METADATA/${metadata_escaped}/g' > ${tmpInsert}",
-            "sqlite3 ${db} < ${tmpInsert}",
-            "rm -f ${tmpInsert} ${tmpInput}",
+            "set:jsonData=!jq -c 'del(.id)' ${tmpInput}",
+            "set:jsonMetadata=!echo value(metadata) | jq -c .",
+            "rm -f ${tmpInput}",
+            "set:sqlFile=!mktemp /tmp/aux4_sql.XXXXXX",
+            "file:${sqlFile}:INSERT INTO ${repository} (id, data, metadata) VALUES (value(key), value(jsonData), value(jsonMetadata)) ON CONFLICT(id) DO UPDATE SET data = excluded.data, metadata = excluded.metadata, updated_at = CURRENT_TIMESTAMP;",
+            "nout:sqlite3 ${db} < ${sqlFile}",
+            "rm -f ${sqlFile}",
             "log:${key}"
           ],
           "help": {
