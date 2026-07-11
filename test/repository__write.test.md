@@ -39,3 +39,50 @@ echo '{"price":100}' | aux4 repository write payments
 ```expect:partial
 *?-*?-*?-*?-*?
 ```
+
+### Write with --ttl merges an expiry epoch into metadata
+
+Providing `--ttl <seconds>` computes an absolute expiry epoch (current epoch + seconds) and merges it into the record metadata under the `ttl` key, preserving any user-supplied metadata. Writing and reading back in a single step (this suite resets the database between steps).
+
+```execute
+aux4 repository write sessions --id s1 --data '{"token":"abc"}' --metadata '{"role":"admin"}' --ttl 3600
+aux4 repository read sessions --id s1 --raw true
+```
+
+```expect:partial
+[
+  {
+    "id": "s1",
+    "token": "abc",
+    "__metadata": {
+      "role": "admin",
+      "ttl": *?,
+      "createdAt": "*?",
+      "updatedAt": "*?"
+    }
+  }
+]
+```
+
+### Write without --ttl leaves metadata unchanged
+
+When `--ttl` is omitted, no `ttl` key is added and metadata behaves exactly as before.
+
+```execute
+aux4 repository write sessions --id s2 --data '{"token":"xyz"}' --metadata '{"role":"user"}'
+aux4 repository read sessions --id s2 --raw true
+```
+
+```expect:partial
+[
+  {
+    "id": "s2",
+    "token": "xyz",
+    "__metadata": {
+      "role": "user",
+      "createdAt": "*?",
+      "updatedAt": "*?"
+    }
+  }
+]
+```

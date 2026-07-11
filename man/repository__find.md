@@ -4,6 +4,8 @@ Expressions use standard comparison operators (=, !=, <>, <, <=, >, >=) and the 
 
 Use find when you need to filter records by content rather than by id. It complements repository write (to add records) and read (to fetch records by id or list all records). The command is intended for ad-hoc queries and scripting where you need flexible, SQL-like filtering over the JSON documents stored in the repository.
 
+By default, records whose metadata `ttl` (an absolute expiry epoch, set via `write --ttl`) is in the past are excluded from the results, even when they match `--expr`. Records with no `ttl` are always eligible. Pass `--includeExpired true` to disable this filter and include expired records in the matches.
+
 ### Example: simple equality
 Find records where a top-level field equals a value:
 
@@ -53,5 +55,13 @@ aux4 repository find products --expr "name like '%Gaming%'"
 ```
 
 Returns records whose name contains the substring "Gaming". 
+
+### Example: include expired records
+
+By default expired records are filtered out of the matches. Use `--includeExpired true` to include them:
+
+```bash
+aux4 repository find sessions --expr "role = 'admin'" --includeExpired true
+```
 
 When no records match the expression the command prints an empty JSON array and exits with a non-zero code; this makes it straightforward to use find in scripts and tests that need to detect absence of results.

@@ -171,3 +171,80 @@ aux4 repository read logs --id log1 --raw true
   }
 ]
 ```
+
+### Read hides expired records by default
+
+Write a live record (future ttl) and an expired record (past ttl written directly into metadata). By default, read returns only the live record.
+
+```execute
+aux4 repository write ttl_hide --id live --data '{"n":"l"}' --ttl 3600
+aux4 repository write ttl_hide --id dead --data '{"n":"d"}' --metadata '{"ttl":1}'
+```
+
+```execute
+aux4 repository read ttl_hide
+```
+
+```expect:partial
+[
+  {
+    "id": "live",
+    "n": "l"
+  }
+]
+```
+
+### Read --includeExpired shows expired records
+
+With `--includeExpired true`, both the live and the expired records are returned.
+
+```execute
+aux4 repository write ttl_show --id live --data '{"n":"l"}' --ttl 3600
+aux4 repository write ttl_show --id dead --data '{"n":"d"}' --metadata '{"ttl":1}'
+```
+
+```execute
+aux4 repository read ttl_show --includeExpired true
+```
+
+```expect:partial
+[
+  {
+    "id": "live",
+    "n": "l"
+  },
+  {
+    "id": "dead",
+    "n": "d"
+  }
+]
+```
+
+### Read by id hides an expired record unless --includeExpired
+
+Reading an expired record by its id returns an empty array by default, but returns the record with `--includeExpired true`.
+
+```execute
+aux4 repository write ttl_byid --id dead --data '{"n":"d"}' --metadata '{"ttl":1}'
+```
+
+```execute
+aux4 repository read ttl_byid --id dead
+```
+
+```error:regex
+^(\[\]|)$
+```
+
+```execute
+aux4 repository read ttl_byid --id dead --includeExpired true
+```
+
+```expect:partial
+[
+  {
+    "id": "dead",
+    "n": "d"
+  }
+]
+```
