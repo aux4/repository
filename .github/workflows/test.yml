@@ -96,16 +96,8 @@ jobs:
       # (4) Full runtime suite against the installed per-OS variant. The build-artifact
       # test in (1) cannot run here (no source tree to build from) so it is removed
       # from the installed copy first.
-      #
-      # NOTE: `continue-on-error` is set because of ONE pre-existing failure that is
-      # unrelated to this cross-platform work — `repository write` emits a jq parse
-      # error on a large nested payload (repository__edge_cases.test.md), which older
-      # aux4 cores swallow (exit 0) but newer cores surface as a non-zero exit on
-      # Linux. It is tracked separately; the find guard in (3) is the hard gate here.
-      # Remove `continue-on-error` once that write bug is fixed.
       - name: Run full runtime suite (installed package)
         shell: bash
-        continue-on-error: true
         run: |
           TEST_DIR="$HOME/.aux4.config/packages/aux4/repository/test"
           rm -f "$TEST_DIR/repository__multi-platform.test.md"
