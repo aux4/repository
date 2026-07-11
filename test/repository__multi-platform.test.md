@@ -1,12 +1,15 @@
 # repository (multi-platform build)
 
 The repository package ships platform-specific `.aux4` overrides under `dist/darwin` and
-`dist/linux`. The `find` command delegates its where-clause translation to a private
-`repository-internal translate-where` command, and only that tiny profile is overridden per
-platform so it uses the correct `sed -i` syntax on each OS (BSD on macOS, GNU on Linux). The
-full `repository` profile is defined once in the root `.aux4` and merged into every platform
-zip. These tests build the package with pkger and assert that each platform zip carries the
-full `repository` profile plus the right `translate-where` variant.
+`dist/linux`. The `find` command delegates its where-clause translation to a private,
+namespaced `repository translate-where run` command that lives in a nested
+`repository:translate-where` profile. Only that tiny nested profile is overridden per platform
+so it uses the correct `sed -i` syntax on each OS (BSD on macOS, GNU on Linux). The full
+`repository` profile (including the private `translate-where` routing command) is defined once
+in the root `.aux4` and merged into every platform zip. Because pkger merges whole profiles by
+name, the dist overrides swap only the `repository:translate-where` profile and never touch the
+main `repository` profile. These tests build the package with pkger and assert that each
+platform zip carries the full `repository` profile plus the right `translate-where` variant.
 
 ```beforeAll
 rm -rf _build && mkdir -p _build
@@ -41,10 +44,10 @@ _build/linux_aux4_repository_1.0.0.zip
 
 The Linux override must call `sed -i -E` with no separate `''` argument, otherwise GNU sed
 reads the empty string as a script and the expression as a filename (`sed: can't read s/...`).
-The sed now lives in the private `repository-internal translate-where` command.
+The sed now lives in the private `repository:translate-where` profile's `run` command.
 
 ```execute
-rm -rf _build/linux && mkdir -p _build/linux && unzip -oq _build/linux_aux4_repository_1.0.0.zip -d _build/linux && jq -r '.profiles[] | select(.name=="repository-internal").commands[] | select(.name=="translate-where").execute[] | select(startswith("sed"))' _build/linux/aux4/repository/.aux4 | grep -oE "^sed -i( '')? -E"
+rm -rf _build/linux && mkdir -p _build/linux && unzip -oq _build/linux_aux4_repository_1.0.0.zip -d _build/linux && jq -r '.profiles[] | select(.name=="repository:translate-where").commands[] | select(.name=="run").execute[] | select(startswith("sed"))' _build/linux/aux4/repository/.aux4 | grep -oE "^sed -i( '')? -E"
 ```
 
 ```expect
@@ -57,7 +60,7 @@ The macOS override keeps the native BSD form `sed -i '' -E`, which requires the 
 empty-string suffix argument.
 
 ```execute
-rm -rf _build/darwin && mkdir -p _build/darwin && unzip -oq _build/darwin_aux4_repository_1.0.0.zip -d _build/darwin && jq -r '.profiles[] | select(.name=="repository-internal").commands[] | select(.name=="translate-where").execute[] | select(startswith("sed"))' _build/darwin/aux4/repository/.aux4 | grep -oE "^sed -i( '')? -E"
+rm -rf _build/darwin && mkdir -p _build/darwin && unzip -oq _build/darwin_aux4_repository_1.0.0.zip -d _build/darwin && jq -r '.profiles[] | select(.name=="repository:translate-where").commands[] | select(.name=="run").execute[] | select(startswith("sed"))' _build/darwin/aux4/repository/.aux4 | grep -oE "^sed -i( '')? -E"
 ```
 
 ```expect
@@ -68,27 +71,51 @@ sed -i '' -E
 
 Because pkger merges at the profile level, the whole `repository` profile is defined once in
 the root `.aux4` and merged unchanged into every platform zip (the dist overrides carry only
-the tiny `repository-internal` profile).
+the tiny nested `repository:translate-where` profile). The profile keeps its seven public
+commands plus the private `translate-where` routing command.
 
 ```execute
 jq -r '[.profiles[] | select(.name=="repository").commands[].name] | join(",")' _build/linux/aux4/repository/.aux4
 ```
 
 ```expect
-init,write,read,find,delete,truncate,clean
+init,write,read,find,delete,truncate,clean,translate-where
+```
+
+### the repository profile appears exactly once (not duplicated by dist)
+
+The dist override must not duplicate the main `repository` profile; only the nested
+`repository:translate-where` profile is platform-specific.
+
+```execute
+jq -r '[.profiles[] | select(.name=="repository")] | length' _build/linux/aux4/repository/.aux4
+```
+
+```expect
+1
+```
+
+### the nested translate-where profile is present once per platform
+
+```execute
+jq -r '[.profiles[] | select(.name=="repository:translate-where")] | length' _build/linux/aux4/repository/.aux4
+```
+
+```expect
+1
 ```
 
 ### find delegates to translate-where (no inline sed)
 
-The `find` command no longer contains an inline `sed`; it calls the private
-`repository-internal translate-where` helper so the platform-specific part is isolated.
+The `find` command no longer contains an inline `sed`; it calls the private, namespaced
+`repository translate-where run` helper so the platform-specific part is isolated.
 
 ```execute
 jq -r '.profiles[] | select(.name=="repository").commands[] | select(.name=="find").execute[] | select(contains("translate-where"))' _build/linux/aux4/repository/.aux4
 ```
 
 ```expect
-aux4 repository-internal translate-where --file ${tmpWhere}
+aux4 repository translate-where run --file ${tmpWhere}
 ```
 
 ### find contains no sed instruction

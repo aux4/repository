@@ -2,10 +2,10 @@
   "platform": "linux",
   "profiles": [
     {
-      "name": "repository-internal",
+      "name": "repository:translate-where",
       "commands": [
         {
-          "name": "translate-where",
+          "name": "run",
           "private": true,
           "execute": [
             "sed -i -E \"s/([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(=|!=|<>|<=|>=|<|>|like|not like)[[:space:]]*('[^']*'|[^[:space:]]+)/json_extract(data, '$.\\1') \\2 \\3/gi\" ${file}"
