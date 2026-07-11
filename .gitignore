@@ -80,7 +80,10 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+# dist holds committed pkger multi-platform overrides (dist/<os>/.aux4); ignore other dist output only
+dist/*
+!dist/darwin
+!dist/linux
 
 # Gatsby files
 .cache/
