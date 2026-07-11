@@ -33,6 +33,16 @@
           "help": {
             "text": "Simplified aux4 database"
           }
+        },
+        {
+          "name": "repository-internal",
+          "private": true,
+          "execute": [
+            "profile:repository-internal"
+          ],
+          "help": {
+            "text": "Internal helpers for the repository package (platform-specific)"
+          }
         }
       ]
     },
@@ -167,7 +177,7 @@
             "set:tmpWhere=!mktemp /tmp/aux4_where.XXXXXX",
             "set:tmpResult=!mktemp /tmp/aux4_find.XXXXXX",
             "echo value(expr) > ${tmpWhere}",
-            "sed -i '' -E \"s/([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(=|!=|<>|<=|>=|<|>|like|not like)[[:space:]]*('[^']*'|[^[:space:]]+)/json_extract(data, '$.\\1') \\2 \\3/gi\" ${tmpWhere}",
+            "aux4 repository-internal translate-where --file ${tmpWhere}",
             "set:where_clause=!cat '${tmpWhere}'",
             "set:ttlClause=!if(includeExpired==true) && echo '' || echo \"AND (json_extract(metadata,'$.ttl') IS NULL OR json_extract(metadata,'$.ttl') > strftime('%s','now') + 0)\"",
             "sqlite3 -json ${db} \"SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE (${where_clause}) ${ttlClause}\" > ${tmpResult}",
@@ -272,6 +282,27 @@
                 "name": "db",
                 "text": "The database to clean",
                 "default": ".local.db"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "repository-internal",
+      "commands": [
+        {
+          "name": "translate-where",
+          "private": true,
+          "execute": [
+            "sed -i '' -E \"s/([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(=|!=|<>|<=|>=|<|>|like|not like)[[:space:]]*('[^']*'|[^[:space:]]+)/json_extract(data, '$.\\1') \\2 \\3/gi\" ${file}"
+          ],
+          "help": {
+            "text": "Rewrite a where-clause file in place, translating bare column references into json_extract(data, '$.col') (BSD sed variant; the linux dist override supplies the GNU form)",
+            "variables": [
+              {
+                "name": "file",
+                "text": "The where-clause file to translate in place"
               }
             ]
           }
