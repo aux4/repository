@@ -202,3 +202,46 @@ aux4 repository find products --expr "inStock = 1"
   }
 ]
 ```
+
+### Find hides expired records by default
+
+Write a live record (future ttl) and an expired record (past ttl), both matching the expression. By default, find returns only the live record.
+
+```execute
+aux4 repository write ttl_find --id live --data '{"name":"Live"}' --ttl 3600
+aux4 repository write ttl_find --id dead --data '{"name":"Dead"}' --metadata '{"ttl":1}'
+```
+
+```execute
+aux4 repository find ttl_find --expr "name like '%'"
+```
+
+```expect:partial
+[
+  {
+    "id": "live",
+    "name": "Live"
+  }
+]
+```
+
+### Find --includeExpired shows expired records
+
+With `--includeExpired true`, both matching records are returned even though one has expired.
+
+```execute
+aux4 repository find ttl_find --expr "name like '%'" --includeExpired true
+```
+
+```expect:partial
+[
+  {
+    "id": "live",
+    "name": "Live"
+  },
+  {
+    "id": "dead",
+    "name": "Dead"
+  }
+]
+```

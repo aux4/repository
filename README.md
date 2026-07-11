@@ -2,7 +2,7 @@
 
 Simplified aux4 database
 
-aux4/repository provides a tiny, file-backed JSON repository built on SQLite. It exposes a small set of commands (write, read, find, delete, truncate) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, and manage repository tables inside a local SQLite database. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
+aux4/repository provides a tiny, file-backed JSON repository built on SQLite. It exposes a small set of commands (write, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, and manage repository tables inside a local SQLite database. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
 
 This package is a building block in the aux4 ecosystem for storing and querying structured JSON data without running a separate database server. Typical use cases include quick test fixtures, local caches, small data imports/exports, and lightweight persistence for CLI tools. It keeps behavior predictable by using sqlite3 and jq as the underlying tools and follows aux4 conventions for variables and profiles.
 
@@ -127,6 +127,55 @@ Example expected output (excerpt):
 ```
 
 For full command docs see [aux4 repository find](./commands/repository/find).
+
+## Expiring records with a time-to-live (TTL)
+
+Records can be given an expiry using the `--ttl <seconds>` flag on `write`. The value is a duration in seconds; it is converted to an absolute expiry epoch using the database clock and merged into the record metadata under the `ttl` key. Any user-supplied `--metadata` is preserved:
+
+```bash
+aux4 repository write sessions --id s1 --data '{"token":"abc"}' --metadata '{"role":"admin"}' --ttl 3600
+```
+
+This stores metadata like `{"role":"admin","ttl":1783724578}`. Records with no `ttl` never expire.
+
+Expired records (whose `ttl` is in the past) are **hidden by default** from both `read` and `find` — including reads by `--id`. Records with no `ttl` are always returned. To include expired records (for debugging or manual sweeps), pass `--includeExpired true`:
+
+```bash
+# expired records are hidden
+aux4 repository read sessions
+
+# expired records are shown
+aux4 repository read sessions --includeExpired true
+aux4 repository find sessions --expr "role = 'admin'" --includeExpired true
+```
+
+Hiding is a query-time filter — expired records still occupy storage until they are swept by `clean`.
+
+**Note:** A negative value written as `--ttl -60` (with a space) is interpreted as a flag; use `--ttl=-60` to store an already-expired record, or set a past epoch directly via `--metadata '{"ttl":1}'`.
+
+For full command docs see [aux4 repository write](./commands/repository/write).
+
+## Sweeping expired records (clean)
+
+The `clean` command removes expired records from **every** repository in a database. It takes no repository argument — it enumerates all user tables and deletes the records whose `ttl` is in the past, printing a per-repository summary. It is intended to be run periodically (for example from [aux4/cron](/r/public/packages/aux4/cron)) as a maintenance sweep.
+
+```bash
+aux4 repository clean
+```
+
+```text
+users: 1 expired records removed
+sessions: 1 expired records removed
+cache: 0 expired records removed
+```
+
+Use `--db` to target a specific database:
+
+```bash
+aux4 repository clean --db /var/data/app.db
+```
+
+For full command docs see [aux4 repository clean](./commands/repository/clean).
 
 ## Deleting and truncating
 

@@ -1,0 +1,26 @@
+{
+  "platform": "darwin",
+  "profiles": [
+    {
+      "name": "repository:translate-where",
+      "commands": [
+        {
+          "name": "run",
+          "private": true,
+          "execute": [
+            "sed -i '' -E \"s/([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(=|!=|<>|<=|>=|<|>|like|not like)[[:space:]]*('[^']*'|[^[:space:]]+)/json_extract(data, '$.\\1') \\2 \\3/gi\" ${file}"
+          ],
+          "help": {
+            "text": "Rewrite a where-clause file in place, translating bare column references into json_extract(data, '$.col') (BSD sed variant for macOS)",
+            "variables": [
+              {
+                "name": "file",
+                "text": "The where-clause file to translate in place"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,8 @@ When an --id is provided, the command returns an array with the single matching 
 
 Use this command when you need to retrieve stored JSON objects from an aux4 repository and work with them as native JSON (the command outputs valid JSON suitable for piping into jq or other JSON processors). It is commonly paired with the write and find commands to populate and query repository data.
 
+By default, records whose metadata `ttl` (an absolute expiry epoch, set via `write --ttl`) is in the past are hidden from the result — both when reading all records and when reading a single record by `--id`. Records with no `ttl` are always returned. Pass `--includeExpired true` to skip this filter and return expired records as well (useful for debugging or manual sweeps).
+
 ### Example: Read all records from a repository
 
 This reads every record stored in the users repository and returns them as an array. Each item contains the record's id, the stored data fields, and a merged "__metadata" object with createdAt/updatedAt timestamps.
@@ -70,4 +72,16 @@ If the repository contains no matching records the command prints an empty array
 aux4 repository read empty_test_repo
 ```
 
-The read command is most useful together with the repository write and find commands. For writing new items, see [aux4 repository write](./write); for filtering using expressions, see [aux4 repository find](./find).
+### Example: Include expired records
+
+By default an expired record is hidden. Use `--includeExpired true` to see it anyway.
+
+```bash
+# hidden by default (record has an expired ttl)
+aux4 repository read sessions --id s1
+
+# shown with --includeExpired
+aux4 repository read sessions --id s1 --includeExpired true
+```
+
+The read command is most useful together with the repository write and find commands. For writing new items, see [aux4 repository write](./write); for filtering using expressions, see [aux4 repository find](./find). Expired records can be swept from every repository with [aux4 repository clean](./clean).
