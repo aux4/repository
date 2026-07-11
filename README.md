@@ -48,6 +48,8 @@ The key variables:
 - id — optional id to store (overrides id in JSON)
 - data — JSON string to store (optional if providing via stdin)
 - metadata — optional JSON metadata (defaults to {})
+- ttl — optional time-to-live in seconds (see [Expiring records](#expiring-records-with-a-time-to-live-ttl))
+- access — optional comma-separated access labels (see [Restricting data with access labels](#restricting-data-with-access-labels))
 
 Example using explicit id, data, and metadata:
 
@@ -154,6 +156,49 @@ Hiding is a query-time filter — expired records still occupy storage until the
 **Note:** A negative value written as `--ttl -60` (with a space) is interpreted as a flag; use `--ttl=-60` to store an already-expired record, or set a past epoch directly via `--metadata '{"ttl":1}'`.
 
 For full command docs see [aux4 repository write](./commands/repository/write).
+
+## Restricting data with access labels
+
+Records can be scoped to a set of access labels using the `--access <labels>` flag on `write`. The value is a comma-separated string that is split into a JSON array and stored under the `access` key in the record metadata (alongside any user-supplied `--metadata` and `ttl`):
+
+```bash
+aux4 repository write docs --id doc1 --data '{"title":"Roadmap"}' --access "team-a,team-b"
+```
+
+This stores metadata like `{"access":["team-a","team-b"]}`. A record written **without** `--access` has no `access` key and is **public** — visible to every caller. A record written **with** `--access` is **restricted** — visible only to callers that present a matching label.
+
+`read` and `find` accept the caller's labels via `--access` and filter results accordingly:
+
+- Public records (no `access` key) are always visible, regardless of the caller's labels.
+- A restricted record is visible only when one of its labels matches one of the caller's labels.
+- With no `--access`, only public records are returned.
+- `--all true` bypasses access filtering and returns every record — public and restricted.
+
+```bash
+# caller holding label "team-b" -> public records + records tagged team-a/team-b
+aux4 repository read docs --access team-b
+
+# no --access -> public records only
+aux4 repository read docs
+
+# --all true -> every record, public and restricted
+aux4 repository read docs --all true
+```
+
+With `find`, the access filter is applied **on top of** the `--expr` filter and cannot be bypassed through the expression:
+
+```bash
+# matches the expression AND is public or tagged "secret"
+aux4 repository find docs --expr "team = 'x'" --access secret
+```
+
+`find` enforces this by evaluating the access/visibility predicate in an **inner subquery** and applying `--expr` only to the already-restricted rowset. An `--expr` that closes a parenthesis or adds `OR 1=1` can therefore only widen selection *within* the rows the caller is already authorized to see. As defense-in-depth, `find` also **rejects** any `--expr` containing the sequences `;`, `--`, or `/*`. The caller's `--access` labels are safely single-quoted, so a label cannot inject SQL.
+
+**Warning — `--expr` is a trusted, application-controlled surface.** `--expr` is raw SQL. The subquery shape keeps restricted rows out of the result, but a caller who controls `--expr` can still build a **blind-extraction oracle** (e.g. `... AND (SELECT data FROM repo WHERE id='x') LIKE 'S%'`) to infer restricted content from which authorized rows come back. Access filtering protects the returned rowset, not against arbitrary crafted predicates. **Never pass raw end-user text into `--expr` when access control matters** — express caller authorization only via `--access`/`--all`, never by interpolating user input into `--expr`.
+
+**Note:** Access restriction is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct `--db`/sqlite3 access to the database file can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access`/`--all` values passed to `read`/`find`.
+
+For full command docs see [aux4 repository read](./commands/repository/read) and [aux4 repository find](./commands/repository/find).
 
 ## Sweeping expired records (clean)
 

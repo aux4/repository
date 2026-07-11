@@ -86,3 +86,55 @@ aux4 repository read sessions --id s2 --raw true
   }
 ]
 ```
+
+### Write with --access merges access labels into metadata
+
+Providing `--access "a,b"` splits the comma-separated labels into a JSON array stored under the
+`access` key, preserving any user-supplied metadata and coexisting with `--ttl`.
+
+```execute
+aux4 repository write sessions --id s3 --data '{"token":"lmn"}' --metadata '{"role":"admin"}' --ttl 3600 --access "a,b"
+aux4 repository read sessions --id s3 --raw true --all true
+```
+
+```expect:partial
+[
+  {
+    "id": "s3",
+    "token": "lmn",
+    "__metadata": {
+      "role": "admin",
+      "ttl": *?,
+      "access": [
+        "a",
+        "b"
+      ],
+      "createdAt": "*?",
+      "updatedAt": "*?"
+    }
+  }
+]
+```
+
+### Write without --access adds no access key
+
+When `--access` is omitted, no `access` key is added and the record is public.
+
+```execute
+aux4 repository write sessions --id s4 --data '{"token":"opq"}' --metadata '{"role":"user"}'
+aux4 repository read sessions --id s4 --raw true
+```
+
+```expect:partial
+[
+  {
+    "id": "s4",
+    "token": "opq",
+    "__metadata": {
+      "role": "user",
+      "createdAt": "*?",
+      "updatedAt": "*?"
+    }
+  }
+]
+```

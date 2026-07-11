@@ -8,6 +8,10 @@ The optional `--ttl <seconds>` flag sets a time-to-live for the record. It is a 
 
 **Note:** Because a negative value that follows a space (for example `--ttl -60`) is interpreted as a flag, use the `--ttl=-60` form (or write a past epoch directly via `--metadata`) if you need to store an already-expired record for testing.
 
+The optional `--access <labels>` flag stamps one or more access labels onto the record for data restriction. The value is a comma-separated string that is split into a JSON array and merged into the record metadata under the `access` key, coexisting with `--ttl` and any user-supplied `--metadata`. For example `--metadata '{"role":"admin"}' --access "team-a,team-b"` produces metadata like `{"role":"admin","access":["team-a","team-b"]}`. When `--access` is omitted no `access` key is added and the record is **public** — visible to every `read`/`find` caller. When `--access` is set the record becomes restricted and is only returned to callers that pass a matching label via `read`/`find` `--access` (or bypass filtering with `--all true`).
+
+**Note:** Access restriction is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct `--db`/sqlite3 access to the database file can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access` value passed to `read`/`find`.
+
 ### Example: Write with explicit id, data and metadata
 Write a record by passing the JSON on the command line along with an explicit id and optional metadata.
 
@@ -66,6 +70,40 @@ Reading it back with `--raw true` shows the merged metadata:
     }
   }
 ]
+```
+
+### Example: Restrict a record with access labels
+
+Tag a record so it is only visible to callers holding the `team-a` or `team-b` label.
+
+```bash
+aux4 repository write docs --id doc1 --data '{"title":"Roadmap"}' --access "team-a,team-b"
+```
+
+Reading it back with `--raw true --all true` shows the stamped labels:
+
+```json
+[
+  {
+    "id": "doc1",
+    "title": "Roadmap",
+    "__metadata": {
+      "access": [
+        "team-a",
+        "team-b"
+      ],
+      "createdAt": "2026-07-10 22:02:58",
+      "updatedAt": "2026-07-10 22:02:58"
+    }
+  }
+]
+```
+
+A caller then sees the record only when passing a matching label:
+
+```bash
+aux4 repository read docs --access team-b   # returns doc1
+aux4 repository read docs                    # doc1 hidden (public records only)
 ```
 
 Related commands: use aux4 repository read to fetch inserted records, aux4 repository find to filter records by expressions, and aux4 repository clean to remove expired records.
