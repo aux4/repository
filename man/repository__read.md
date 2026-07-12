@@ -6,6 +6,20 @@ Use this command when you need to retrieve stored JSON objects from an aux4 repo
 
 By default, records whose metadata `ttl` (an absolute expiry epoch, set via `write --ttl`) is in the past are hidden from the result — both when reading all records and when reading a single record by `--id`. Records with no `ttl` are always returned. Pass `--includeExpired true` to skip this filter and return expired records as well (useful for debugging or manual sweeps).
 
+### Data restriction
+
+Records written with `write --access <labels>` carry one or more access labels under `metadata.access` and are **restricted**; records written without `--access` are **public**. The `read` command filters results by the caller's labels:
+
+- Pass `--access <labels>` (comma-separated) to declare the labels the caller holds.
+- Public records (no `access` key) are always visible, regardless of the caller's labels.
+- A restricted record is visible only when one of its labels matches one of the caller's labels.
+- With no `--access`, only public records are returned.
+- Pass `--all true` to bypass access filtering entirely and return every record — public and restricted — regardless of labels.
+
+The label filter applies both when listing all records and when reading a single record by `--id`: reading a restricted record by id without a matching label returns an empty array. The caller's `--access` labels are safely single-quoted before being embedded in the query, so a label cannot inject SQL.
+
+**Note:** This is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct `--db`/sqlite3 access to the database file can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access`/`--all` values.
+
 ### Example: Read all records from a repository
 
 This reads every record stored in the users repository and returns them as an array. Each item contains the record's id, the stored data fields, and a merged "__metadata" object with createdAt/updatedAt timestamps.
@@ -82,6 +96,21 @@ aux4 repository read sessions --id s1
 
 # shown with --includeExpired
 aux4 repository read sessions --id s1 --includeExpired true
+```
+
+### Example: Read restricted records by access label
+
+Given a public record and records tagged with access labels, a caller sees only public records plus the ones matching its labels; `--all true` returns everything.
+
+```bash
+# caller holding label "a" -> public records + records tagged "a"
+aux4 repository read docs --access a
+
+# no --access -> public records only
+aux4 repository read docs
+
+# --all true -> every record, public and restricted
+aux4 repository read docs --all true
 ```
 
 The read command is most useful together with the repository write and find commands. For writing new items, see [aux4 repository write](./write); for filtering using expressions, see [aux4 repository find](./find). Expired records can be swept from every repository with [aux4 repository clean](./clean).

@@ -29,13 +29,31 @@ Building the package produces one zip per platform plus the meta (hub) zip.
 ( cd .. && aux4 aux4 pkger build . --out test/_build ) 2>&1 | grep -E "Creating zip file (darwin|linux|aux4)_" && ls _build/darwin_aux4_repository_*.zip _build/linux_aux4_repository_*.zip _build/aux4_repository_*.zip
 ```
 
+The platform build order is not guaranteed, so each zip is asserted independently with its own
+`expect:partial` block rather than as one ordered block.
+
 ```expect:partial
-Creating zip file darwin_aux4_repository_1.0.0.zip
-Creating zip file linux_aux4_repository_1.0.0.zip
-Creating zip file aux4_repository_1.0.0.zip
-_build/aux4_repository_1.0.0.zip
-_build/darwin_aux4_repository_1.0.0.zip
-_build/linux_aux4_repository_1.0.0.zip
+Creating zip file darwin_aux4_repository_1.1.0.zip
+```
+
+```expect:partial
+Creating zip file linux_aux4_repository_1.1.0.zip
+```
+
+```expect:partial
+Creating zip file aux4_repository_1.1.0.zip
+```
+
+```expect:partial
+_build/darwin_aux4_repository_1.1.0.zip
+```
+
+```expect:partial
+_build/linux_aux4_repository_1.1.0.zip
+```
+
+```expect:partial
+_build/aux4_repository_1.1.0.zip
 ```
 
 ## find portability
@@ -47,7 +65,7 @@ reads the empty string as a script and the expression as a filename (`sed: can't
 The sed now lives in the private `repository:translate-where` profile's `run` command.
 
 ```execute
-rm -rf _build/linux && mkdir -p _build/linux && unzip -oq _build/linux_aux4_repository_1.0.0.zip -d _build/linux && jq -r '.profiles[] | select(.name=="repository:translate-where").commands[] | select(.name=="run").execute[] | select(startswith("sed"))' _build/linux/aux4/repository/.aux4 | grep -oE "^sed -i( '')? -E"
+rm -rf _build/linux && mkdir -p _build/linux && unzip -oq _build/linux_aux4_repository_1.1.0.zip -d _build/linux && jq -r '.profiles[] | select(.name=="repository:translate-where").commands[] | select(.name=="run").execute[] | select(startswith("sed"))' _build/linux/aux4/repository/.aux4 | grep -oE "^sed -i( '')? -E"
 ```
 
 ```expect
@@ -60,7 +78,7 @@ The macOS override keeps the native BSD form `sed -i '' -E`, which requires the 
 empty-string suffix argument.
 
 ```execute
-rm -rf _build/darwin && mkdir -p _build/darwin && unzip -oq _build/darwin_aux4_repository_1.0.0.zip -d _build/darwin && jq -r '.profiles[] | select(.name=="repository:translate-where").commands[] | select(.name=="run").execute[] | select(startswith("sed"))' _build/darwin/aux4/repository/.aux4 | grep -oE "^sed -i( '')? -E"
+rm -rf _build/darwin && mkdir -p _build/darwin && unzip -oq _build/darwin_aux4_repository_1.1.0.zip -d _build/darwin && jq -r '.profiles[] | select(.name=="repository:translate-where").commands[] | select(.name=="run").execute[] | select(startswith("sed"))' _build/darwin/aux4/repository/.aux4 | grep -oE "^sed -i( '')? -E"
 ```
 
 ```expect
@@ -71,15 +89,15 @@ sed -i '' -E
 
 Because pkger merges at the profile level, the whole `repository` profile is defined once in
 the root `.aux4` and merged unchanged into every platform zip (the dist overrides carry only
-the tiny nested `repository:translate-where` profile). The profile keeps its seven public
-commands plus the private `translate-where` routing command.
+the tiny nested `repository:translate-where` profile). The profile keeps its public commands
+plus the private `visibility-clause` and `translate-where` helper commands.
 
 ```execute
 jq -r '[.profiles[] | select(.name=="repository").commands[].name] | join(",")' _build/linux/aux4/repository/.aux4
 ```
 
 ```expect
-init,write,read,find,delete,truncate,clean,translate-where
+init,write,read,find,delete,truncate,clean,visibility-clause,translate-where
 ```
 
 ### the repository profile appears exactly once (not duplicated by dist)

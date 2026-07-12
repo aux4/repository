@@ -72,7 +72,7 @@
             "set:metaFile=!mktemp /tmp/aux4_meta.XXXXXX",
             "jq -c 'del(.id)' ${tmpInput} > ${dataFile}",
             "set:ttlEpoch=!if(ttl==) && echo 'null' || sqlite3 :memory: \"SELECT strftime('%s','now') + (${ttl})\"",
-            "echo value(metadata) | jq -c --argjson ttl ${ttlEpoch} 'if $$ttl == null then . else . + {ttl: $$ttl} end' > ${metaFile}",
+            "echo value(metadata) | jq -c --argjson ttl ${ttlEpoch} --arg access value(access) 'if $$ttl == null then . else . + {ttl: $$ttl} end | if $$access == \"\" then . else . + {access: ($$access | split(\",\"))} end' > ${metaFile}",
             "rm -f ${tmpInput}",
             "set:sqlFile=!mktemp /tmp/aux4_sql.XXXXXX",
             "file:${sqlFile}:INSERT INTO ${repository} (id, data, metadata) VALUES (value(key), CAST(readfile('${dataFile}') AS TEXT), CAST(readfile('${metaFile}') AS TEXT)) ON CONFLICT(id) DO UPDATE SET data = excluded.data, metadata = excluded.metadata, updated_at = CURRENT_TIMESTAMP;",
@@ -112,6 +112,11 @@
                 "name": "ttl",
                 "text": "Time-to-live in seconds; stored as an absolute expiry epoch under metadata.ttl. Expired records are hidden from read/find and removed by clean",
                 "default": ""
+              },
+              {
+                "name": "access",
+                "text": "Comma-separated access labels; stored as a JSON array under metadata.access. When set, the record is only visible to read/find callers passing a matching --access label (or --all true). When empty, the record is public.",
+                "default": ""
               }
             ]
           }
@@ -121,13 +126,14 @@
           "execute": [
             "aux4 repository init --db ${db} --repository ${repository}",
             "set:tmpFile=!mktemp /tmp/aux4_read.XXXXXX",
-            "set:ttlClause=!if(includeExpired==true) && echo '' || echo \"AND (json_extract(metadata,'$.ttl') IS NULL OR json_extract(metadata,'$.ttl') > strftime('%s','now') + 0)\"",
-            "nout:if(id) && echo \"SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE id = value(id) ${ttlClause}\" || echo \"SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE 1=1 ${ttlClause}\"",
-            "set:sql=${response}",
-            "sqlite3 -json ${db} \"${sql}\" > ${tmpFile}",
+            "set:visClause=!aux4 repository visibility-clause --includeExpired ${includeExpired} --all ${all} --access value(access)",
+            "set:idClause=!if(id==) && echo '1=1' || echo \"id = value(id)\"",
+            "set:sqlFile=!mktemp /tmp/aux4_read_sql.XXXXXX",
+            "file:${sqlFile}:SELECT id, data, metadata, created_at, updated_at FROM ( SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE 1=1 ${visClause} ) WHERE ${idClause};",
+            "sqlite3 -json ${db} < ${sqlFile} > ${tmpFile}",
             "if(raw==true) && if [ -s ${tmpFile} ]; then cat ${tmpFile} | jq 'map(. as $$row | ({\"id\": $$row.id} + ($$row.data | fromjson)) + {\"__metadata\": (($$row.metadata | fromjson) + {\"createdAt\": $$row.created_at, \"updatedAt\": $$row.updated_at})})'; else echo '[]'; fi || true",
             "if(raw!=true) && if [ -s ${tmpFile} ]; then cat ${tmpFile} | jq 'map(. as $$row | ({\"id\": $$row.id} + ($$row.data | fromjson)))'; else echo '[]'; fi || true",
-            "rm -f ${tmpFile}"
+            "rm -f ${tmpFile} ${sqlFile}"
           ],
           "help": {
             "text": "Read from the aux4 repository",
@@ -156,6 +162,16 @@
                 "name": "includeExpired",
                 "text": "Include records whose ttl has expired (hidden by default)",
                 "default": "false"
+              },
+              {
+                "name": "access",
+                "text": "Comma-separated access labels held by the caller. Public records (written without --access) are always visible; restricted records are visible only when one of their labels matches. With no --access, only public records are returned.",
+                "default": ""
+              },
+              {
+                "name": "all",
+                "text": "Bypass access filtering and return every record regardless of its access labels (public and restricted). Defaults to false.",
+                "default": "false"
               }
             ]
           }
@@ -164,16 +180,19 @@
           "name": "find",
           "execute": [
             "aux4 repository init --db ${db} --repository ${repository}",
+            "if printf '%s' value(expr) | grep -Eq -- '(;|--|/[*])'; then echo 'Error: --expr may not contain the SQL comment or statement-terminator sequences (; -- or /*)' >&2; exit 4; fi",
             "set:tmpWhere=!mktemp /tmp/aux4_where.XXXXXX",
             "set:tmpResult=!mktemp /tmp/aux4_find.XXXXXX",
             "echo value(expr) > ${tmpWhere}",
             "aux4 repository translate-where run --file ${tmpWhere}",
             "set:where_clause=!cat '${tmpWhere}'",
-            "set:ttlClause=!if(includeExpired==true) && echo '' || echo \"AND (json_extract(metadata,'$.ttl') IS NULL OR json_extract(metadata,'$.ttl') > strftime('%s','now') + 0)\"",
-            "sqlite3 -json ${db} \"SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE (${where_clause}) ${ttlClause}\" > ${tmpResult}",
+            "set:visClause=!aux4 repository visibility-clause --includeExpired ${includeExpired} --all ${all} --access value(access)",
+            "set:sqlFile=!mktemp /tmp/aux4_find_sql.XXXXXX",
+            "file:${sqlFile}:SELECT id, data, metadata, created_at, updated_at FROM ( SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE 1=1 ${visClause} ) WHERE (${where_clause});",
+            "sqlite3 -json ${db} < ${sqlFile} > ${tmpResult}",
             "if(raw==true) && if [ -s ${tmpResult} ]; then cat ${tmpResult} | jq 'map(. as $$row | ({\"id\": $$row.id} + ($$row.data | fromjson)) + {\"__metadata\": (($$row.metadata | fromjson) + {\"createdAt\": $$row.created_at, \"updatedAt\": $$row.updated_at})})'; else echo '[]'; fi || true",
             "if(raw!=true) && if [ -s ${tmpResult} ]; then cat ${tmpResult} | jq 'map(. as $$row | ({\"id\": $$row.id} + ($$row.data | fromjson)))'; else echo '[]'; fi || true",
-            "rm -f ${tmpWhere} ${tmpResult}"
+            "rm -f ${tmpWhere} ${tmpResult} ${sqlFile}"
           ],
           "help": {
             "text": "Find in the aux4 repository using SQL expressions",
@@ -200,6 +219,16 @@
               {
                 "name": "includeExpired",
                 "text": "Include records whose ttl has expired (hidden by default)",
+                "default": "false"
+              },
+              {
+                "name": "access",
+                "text": "Comma-separated access labels held by the caller. Public records (written without --access) are always visible; restricted records are visible only when one of their labels matches. With no --access, only public records are returned. Applied on top of the --expr filter.",
+                "default": ""
+              },
+              {
+                "name": "all",
+                "text": "Bypass access filtering and return every record regardless of its access labels (public and restricted). Defaults to false.",
                 "default": "false"
               }
             ]
@@ -272,6 +301,33 @@
                 "name": "db",
                 "text": "The database to clean",
                 "default": ".local.db"
+              }
+            ]
+          }
+        },
+        {
+          "name": "visibility-clause",
+          "private": true,
+          "execute": [
+            "jq -rn --arg access value(access) --arg all \"${all}\" --arg includeExpired \"${includeExpired}\" '(if $$includeExpired == \"true\" then \"\" else \"AND (json_extract(metadata,\\u0027$.ttl\\u0027) IS NULL OR json_extract(metadata,\\u0027$.ttl\\u0027) > strftime(\\u0027%s\\u0027,\\u0027now\\u0027) + 0)\" end) as $$ttl | (if $$all == \"true\" then \"\" elif $$access == \"\" then \"AND json_extract(metadata,\\u0027$.access\\u0027) IS NULL\" else ($$access | split(\",\") | map(\"\\u0027\" + gsub(\"\\u0027\";\"\\u0027\\u0027\") + \"\\u0027\") | join(\",\")) as $$list | \"AND (json_extract(metadata,\\u0027$.access\\u0027) IS NULL OR EXISTS (SELECT 1 FROM json_each(metadata,\\u0027$.access\\u0027) WHERE value IN (\" + $$list + \")))\" end) as $$acc | $$ttl + \" \" + $$acc'"
+          ],
+          "help": {
+            "text": "Emit the combined hidden WHERE predicate (ttl visibility + access restriction) as a single string for read/find. Not for direct use.",
+            "variables": [
+              {
+                "name": "includeExpired",
+                "text": "When true, omit the ttl predicate (show expired records)",
+                "default": "false"
+              },
+              {
+                "name": "all",
+                "text": "When true, omit the access predicate (bypass access filtering)",
+                "default": "false"
+              },
+              {
+                "name": "access",
+                "text": "Comma-separated caller access labels used to build the safely-quoted IN list",
+                "default": ""
               }
             ]
           }
