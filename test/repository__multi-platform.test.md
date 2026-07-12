@@ -29,13 +29,31 @@ Building the package produces one zip per platform plus the meta (hub) zip.
 ( cd .. && aux4 aux4 pkger build . --out test/_build ) 2>&1 | grep -E "Creating zip file (darwin|linux|aux4)_" && ls _build/darwin_aux4_repository_*.zip _build/linux_aux4_repository_*.zip _build/aux4_repository_*.zip
 ```
 
+The platform build order is not guaranteed, so each zip is asserted independently with its own
+`expect:partial` block rather than as one ordered block.
+
 ```expect:partial
 Creating zip file darwin_aux4_repository_1.1.0.zip
+```
+
+```expect:partial
 Creating zip file linux_aux4_repository_1.1.0.zip
+```
+
+```expect:partial
 Creating zip file aux4_repository_1.1.0.zip
-_build/aux4_repository_1.1.0.zip
+```
+
+```expect:partial
 _build/darwin_aux4_repository_1.1.0.zip
+```
+
+```expect:partial
 _build/linux_aux4_repository_1.1.0.zip
+```
+
+```expect:partial
+_build/aux4_repository_1.1.0.zip
 ```
 
 ## find portability
