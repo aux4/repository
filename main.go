@@ -18,7 +18,7 @@ func arg(args []string, i int) string {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Error: missing command (expected init, write or find)")
+		fmt.Fprintln(os.Stderr, "Error: missing command (expected init, write, read, find, delete, truncate or clean)")
 		os.Exit(1)
 	}
 
@@ -31,8 +31,16 @@ func main() {
 		err = cmdInit(args)
 	case "write":
 		err = cmdWrite(args)
+	case "read":
+		err = cmdRead(args)
 	case "find":
 		err = cmdFind(args)
+	case "delete":
+		err = cmdDelete(args)
+	case "truncate":
+		err = cmdTruncate(args)
+	case "clean":
+		err = cmdClean(args)
 	default:
 		fmt.Fprintf(os.Stderr, "Error: unknown command %q\n", cmd)
 		os.Exit(1)

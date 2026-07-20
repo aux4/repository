@@ -49,6 +49,36 @@ func (s *localStore) Query(query string, args ...any) ([]Row, error) {
 	return out, rows.Err()
 }
 
+func (s *localStore) Exec(query string, args ...any) (int64, error) {
+	res, err := s.db.Exec(query, args...)
+	if err != nil {
+		return 0, err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return n, nil
+}
+
+func (s *localStore) ListTables() ([]string, error) {
+	rows, err := s.db.Query("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tables []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		tables = append(tables, name)
+	}
+	return tables, rows.Err()
+}
+
 func (s *localStore) Close() error {
 	return s.db.Close()
 }
