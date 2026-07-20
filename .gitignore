@@ -143,3 +143,6 @@ vite.config.ts.timestamp-*
 
 **/*.db
 *.zip
+
+# Go build output (local binary; dist/ holds cross-compiled binaries)
+/aux4-repository

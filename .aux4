@@ -43,7 +43,7 @@
           "name": "init",
           "private": true,
           "execute": [
-            "sqlite3 ${db} \"SELECT name FROM sqlite_master WHERE type = 'table' and name = '${repository}'\" | grep -q ${repository} || cat ${packageDir}/sql/create.sql | sed 's/TABLE_NAME/${repository}/g' | sqlite3 ${db}"
+            "${packageDir}/aux4-repository init values(db, repository)"
           ],
           "help": {
             "text": "Initialize the aux4 repository",
@@ -64,21 +64,7 @@
         {
           "name": "write",
           "execute": [
-            "aux4 repository init --db ${db} --repository ${repository}",
-            "set:tmpInput=!mktemp /tmp/aux4_input.XXXXXX",
-            "stdin:if(data) && echo '${data}' > ${tmpInput} || cat > ${tmpInput}",
-            "set:key=!if(id) && echo '${id}' || (jq -r '.id // empty' ${tmpInput} | grep -q . && jq -r '.id' ${tmpInput}) || uuidgen",
-            "set:dataFile=!mktemp /tmp/aux4_data.XXXXXX",
-            "set:metaFile=!mktemp /tmp/aux4_meta.XXXXXX",
-            "jq -c 'del(.id)' ${tmpInput} > ${dataFile}",
-            "set:ttlEpoch=!if(ttl==) && echo 'null' || sqlite3 :memory: \"SELECT strftime('%s','now') + (${ttl})\"",
-            "echo value(metadata) | jq -c --argjson ttl ${ttlEpoch} --arg access value(access) 'if $$ttl == null then . else . + {ttl: $$ttl} end | if $$access == \"\" then . else . + {access: ($$access | split(\",\"))} end' > ${metaFile}",
-            "rm -f ${tmpInput}",
-            "set:sqlFile=!mktemp /tmp/aux4_sql.XXXXXX",
-            "file:${sqlFile}:INSERT INTO ${repository} (id, data, metadata) VALUES (value(key), CAST(readfile('${dataFile}') AS TEXT), CAST(readfile('${metaFile}') AS TEXT)) ON CONFLICT(id) DO UPDATE SET data = excluded.data, metadata = excluded.metadata, updated_at = CURRENT_TIMESTAMP;",
-            "nout:sqlite3 ${db} < ${sqlFile}",
-            "rm -f ${sqlFile} ${dataFile} ${metaFile}",
-            "log:${key}"
+            "stdin:${packageDir}/aux4-repository write values(db, repository, id, data, metadata, ttl, access)"
           ],
           "help": {
             "text": "Write to the aux4 repository",
@@ -179,20 +165,7 @@
         {
           "name": "find",
           "execute": [
-            "aux4 repository init --db ${db} --repository ${repository}",
-            "if printf '%s' value(expr) | grep -Eq -- '(;|--|/[*])'; then echo 'Error: --expr may not contain the SQL comment or statement-terminator sequences (; -- or /*)' >&2; exit 4; fi",
-            "set:tmpWhere=!mktemp /tmp/aux4_where.XXXXXX",
-            "set:tmpResult=!mktemp /tmp/aux4_find.XXXXXX",
-            "echo value(expr) > ${tmpWhere}",
-            "aux4 repository translate-where run --file ${tmpWhere}",
-            "set:where_clause=!cat '${tmpWhere}'",
-            "set:visClause=!aux4 repository visibility-clause --includeExpired ${includeExpired} --all ${all} --access value(access)",
-            "set:sqlFile=!mktemp /tmp/aux4_find_sql.XXXXXX",
-            "file:${sqlFile}:SELECT id, data, metadata, created_at, updated_at FROM ( SELECT id, data, metadata, created_at, updated_at FROM ${repository} WHERE 1=1 ${visClause} ) WHERE (${where_clause});",
-            "sqlite3 -json ${db} < ${sqlFile} > ${tmpResult}",
-            "if(raw==true) && if [ -s ${tmpResult} ]; then cat ${tmpResult} | jq 'map(. as $$row | ({\"id\": $$row.id} + ($$row.data | fromjson)) + {\"__metadata\": (($$row.metadata | fromjson) + {\"createdAt\": $$row.created_at, \"updatedAt\": $$row.updated_at})})'; else echo '[]'; fi || true",
-            "if(raw!=true) && if [ -s ${tmpResult} ]; then cat ${tmpResult} | jq 'map(. as $$row | ({\"id\": $$row.id} + ($$row.data | fromjson)))'; else echo '[]'; fi || true",
-            "rm -f ${tmpWhere} ${tmpResult} ${sqlFile}"
+            "${packageDir}/aux4-repository find values(db, repository, expr, raw, includeExpired, access, all)"
           ],
           "help": {
             "text": "Find in the aux4 repository using SQL expressions",
