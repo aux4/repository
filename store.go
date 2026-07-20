@@ -2,7 +2,6 @@ package main
 
 import (
 	_ "embed"
-	"fmt"
 	"strings"
 )
 
@@ -36,15 +35,17 @@ type Store interface {
 	Close() error
 }
 
-// NewStore selects a backend based on the --db value. Local file paths use the
-// pure-Go SQLite backend. Remote schemes (libsql://, http(s)://) are reserved
-// for the Turso backend, which is not implemented in this milestone.
+// NewStore selects a backend based on the --db value. Remote schemes
+// (libsql://, ws(s)://, http(s)://) use the Turso/libSQL backend; anything else
+// (a file path or file: URL) uses the local pure-Go SQLite backend.
 func NewStore(db string) (Store, error) {
 	switch {
 	case strings.HasPrefix(db, "libsql://"),
-		strings.HasPrefix(db, "http://"),
-		strings.HasPrefix(db, "https://"):
-		return nil, fmt.Errorf("remote (Turso/libSQL) backend is not implemented yet: %s", db)
+		strings.HasPrefix(db, "wss://"),
+		strings.HasPrefix(db, "ws://"),
+		strings.HasPrefix(db, "https://"),
+		strings.HasPrefix(db, "http://"):
+		return newRemoteStore(db)
 	default:
 		return newLocalStore(db)
 	}

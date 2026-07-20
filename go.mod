@@ -2,9 +2,14 @@ module aux4.dev/repository
 
 go 1.23.6
 
-require modernc.org/sqlite v1.34.4
+require (
+	github.com/tursodatabase/libsql-client-go v0.0.0-20260528064733-9d5d30a29a60
+	modernc.org/sqlite v1.34.4
+)
 
 require (
+	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
+	github.com/coder/websocket v1.8.12 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
