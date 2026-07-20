@@ -4,6 +4,8 @@ Expressions use standard comparison operators (=, !=, <>, <, <=, >, >=) and the 
 
 Use find when you need to filter records by content rather than by id. It complements repository write (to add records) and read (to fetch records by id or list all records). The command is intended for ad-hoc queries and scripting where you need flexible, SQL-like filtering over the JSON documents stored in the repository.
 
+**Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database (auth token read from the `TURSO_AUTH_TOKEN` environment variable). Behavior is identical on both backends.
+
 By default, records whose metadata `ttl` (an absolute expiry epoch, set via `write --ttl`) is in the past are excluded from the results, even when they match `--expr`. Records with no `ttl` are always eligible. Pass `--includeExpired true` to disable this filter and include expired records in the matches.
 
 ### Data restriction
@@ -22,7 +24,7 @@ The caller's `--access` labels are safely single-quoted before being embedded in
 
 **Warning — `--expr` is a trusted, application-controlled surface.** `--expr` is a raw SQL-expression fragment. The subquery shape prevents restricted rows from appearing in the result, but a caller who controls `--expr` can still mount a **blind-extraction oracle** — e.g. `... AND (SELECT data FROM repo WHERE id='x') LIKE 'S%'` — using the presence/absence of authorized rows to infer the content of restricted ones. Access filtering protects the returned rowset, **not** against a caller crafting arbitrary SQL predicates. **Never pass raw end-user text into `--expr` when access control matters** — treat `--expr` as trusted input built by the application, and use `--access`/`--all` (never `--expr`) to express the caller's authorization.
 
-**Note:** This is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct `--db`/sqlite3 access to the database file can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access`/`--all` values.
+**Note:** This is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct access to the underlying database (the local file, or the remote database and its token) can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access`/`--all` values.
 
 ### Example: simple equality
 Find records where a top-level field equals a value:

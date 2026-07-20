@@ -2,7 +2,9 @@ The write command inserts a JSON record into the named repository table, ensurin
 
 ID selection follows a clear priority: an explicit --id flag takes precedence; if no --id is provided the command will use an id field present in the input JSON; if neither is present the command generates a UUID. After a successful insert the command prints the id to stdout.
 
-The implementation uses temporary files and escapes quotes to avoid SQL injection issues when embedding JSON into the insert statement; these implementation details are handled for you and do not require additional steps. The command returns only the record id on success and cleans up temporary files it created.
+Data and metadata are stored using bound query parameters, so JSON values — including quotes, Unicode, and large payloads — are stored safely without any escaping concerns on your part. The command returns only the record id on success.
+
+**Storage backends.** The `--db` value selects the backend by its scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database. For remote databases the auth token is read from the `TURSO_AUTH_TOKEN` environment variable. Behavior is identical on both backends.
 
 The optional `--ttl <seconds>` flag sets a time-to-live for the record. It is a duration in seconds that is converted to an absolute expiry epoch using the database clock (`strftime('%s','now') + <ttl>`), and the resulting value is merged into the record metadata under the `ttl` key. Any user-supplied `--metadata` is preserved: `--metadata '{"role":"admin"}' --ttl 3600` produces metadata like `{"role":"admin","ttl":1783724578}`. When `--ttl` is omitted, no `ttl` key is added and metadata behaves exactly as before. Records whose `ttl` is in the past are hidden from `read` and `find` by default and are removed by `clean`.
 
@@ -10,7 +12,7 @@ The optional `--ttl <seconds>` flag sets a time-to-live for the record. It is a 
 
 The optional `--access <labels>` flag stamps one or more access labels onto the record for data restriction. The value is a comma-separated string that is split into a JSON array and merged into the record metadata under the `access` key, coexisting with `--ttl` and any user-supplied `--metadata`. For example `--metadata '{"role":"admin"}' --access "team-a,team-b"` produces metadata like `{"role":"admin","access":["team-a","team-b"]}`. When `--access` is omitted no `access` key is added and the record is **public** — visible to every `read`/`find` caller. When `--access` is set the record becomes restricted and is only returned to callers that pass a matching label via `read`/`find` `--access` (or bypass filtering with `--all true`).
 
-**Note:** Access restriction is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct `--db`/sqlite3 access to the database file can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access` value passed to `read`/`find`.
+**Note:** Access restriction is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct access to the underlying database (the local file, or the remote database and its token) can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access` value passed to `read`/`find`.
 
 ### Example: Write with explicit id, data and metadata
 Write a record by passing the JSON on the command line along with an explicit id and optional metadata.

@@ -2,25 +2,15 @@
 
 Simplified aux4 database
 
-aux4/repository provides a tiny, file-backed JSON repository built on SQLite. It exposes a small set of commands (write, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, and manage repository tables inside a local SQLite database. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
+aux4/repository provides a tiny JSON repository backed by SQLite. It exposes a small set of commands (write, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, restrict them with access labels, and manage repository tables. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
 
-This package is a building block in the aux4 ecosystem for storing and querying structured JSON data without running a separate database server. Typical use cases include quick test fixtures, local caches, small data imports/exports, and lightweight persistence for CLI tools. It keeps behavior predictable by using sqlite3 and jq as the underlying tools and follows aux4 conventions for variables and profiles.
+This package is a building block in the aux4 ecosystem for storing and querying structured JSON data without running a separate database server. Typical use cases include quick test fixtures, local caches, small data imports/exports, and lightweight persistence for CLI tools. It ships as a single self-contained binary with no external tools required, and can store data either in a local SQLite file (the default) or in a remote Turso/libSQL database — see [Storage backends](#storage-backends---db).
 
 ## Installation
 
 ```bash
 aux4 aux4 pkger install aux4/repository
 ```
-
-## System Dependencies
-
-This package requires system dependencies. You need to have one of the following system installers:
-
-- [brew](/r/public/packages/aux4/system-installer-brew)
-- [apt](/r/public/packages/aux4/system-installer-apt)
-- [linux](/r/public/packages/aux4/system-installer-linux)
-
-For more details, see [system-installer](/r/public/packages/aux4/pkger/commands/aux4/pkger/system).
 
 ## Quick Start
 
@@ -36,14 +26,37 @@ This prints the id of the stored record (here: user1). Then read the repository:
 aux4 repository read users
 ```
 
-This returns JSON array(s) of stored records with merged metadata and timestamps.
+This returns a JSON array of stored records (`{ "id": ..., ...fields }`). Add `--raw true` to also include a `__metadata` object with the stored metadata plus `createdAt`/`updatedAt` timestamps.
+
+## Storage backends (--db)
+
+Every command accepts `--db`, which selects the storage backend by its scheme:
+
+- **Local (default)** — a file path (or `file:` URL) uses an embedded, file-backed SQLite database. The default is `.local.db` in the current directory.
+
+  ```bash
+  aux4 repository write users --id u1 --data '{"name":"John"}'
+  aux4 repository read users --db /var/data/app.db
+  ```
+
+- **Remote (Turso/libSQL)** — a `libsql://`, `wss://`, `ws://`, `https://`, or `http://` URL connects to a remote Turso/libSQL database over the network. The command surface, output, and behavior are identical to the local backend.
+
+  ```bash
+  export TURSO_AUTH_TOKEN="<your-token>"
+  aux4 repository write users --db libsql://my-db.turso.io --id u1 --data '{"name":"John"}'
+  aux4 repository read users --db libsql://my-db.turso.io
+  ```
+
+**Authentication.** For remote databases, the auth token is read from the `TURSO_AUTH_TOKEN` environment variable and applied automatically (unless the URL already includes an `authToken` query parameter). No token is required for a local file or an unauthenticated server.
+
+The package is a single statically linked binary — it needs no `sqlite3`, `jq`, `sed`, or any other external tool installed, on either backend.
 
 ## Storing data (write)
 
 The write command stores a JSON document in the named repository table. You can provide the data via --data or pipe JSON to stdin. If --id is omitted, the command will use an id field inside the JSON (if present) or generate a UUID.
 
 The key variables:
-- db (default: .local.db) — path to the SQLite database
+- db (default: .local.db) — local database file path or a remote `libsql://` URL (see [Storage backends](#storage-backends---db))
 - repository — repository/table name (positional)
 - id — optional id to store (overrides id in JSON)
 - data — JSON string to store (optional if providing via stdin)
@@ -61,14 +74,14 @@ For full command docs see [aux4 repository write](./commands/repository/write).
 
 ## Reading data (read)
 
-The read command returns stored records as JSON. By default it reads all rows; use --id to select a single record. Each returned object contains an id and the fields from the stored JSON, plus a __metadata object that merges stored metadata with createdAt and updatedAt timestamps.
+The read command returns stored records as JSON. By default it reads all rows; use --id to select a single record. Each returned object contains an id and the fields from the stored JSON. With `--raw true`, each object also gains a `__metadata` object that merges the stored metadata with createdAt and updatedAt timestamps.
 
 Example — write two records then read all:
 
 ```bash
 aux4 repository write users --id user1 --data '{"name":"John","age":30}' --metadata '{"role":"admin"}'
 aux4 repository write users --id user2 --data '{"name":"Jane","age":25}' --metadata '{"role":"user"}'
-aux4 repository read users
+aux4 repository read users --raw true
 ```
 
 Example expected output (excerpt):
@@ -107,7 +120,7 @@ find lets you filter records using SQL expressions that are translated to JSON f
 Example — find by name equality:
 
 ```bash
-aux4 repository find users --expr "name = 'John'"
+aux4 repository find users --expr "name = 'John'" --raw true
 ```
 
 Example expected output (excerpt):
@@ -196,7 +209,7 @@ aux4 repository find docs --expr "team = 'x'" --access secret
 
 **Warning — `--expr` is a trusted, application-controlled surface.** `--expr` is raw SQL. The subquery shape keeps restricted rows out of the result, but a caller who controls `--expr` can still build a **blind-extraction oracle** (e.g. `... AND (SELECT data FROM repo WHERE id='x') LIKE 'S%'`) to infer restricted content from which authorized rows come back. Access filtering protects the returned rowset, not against arbitrary crafted predicates. **Never pass raw end-user text into `--expr` when access control matters** — express caller authorization only via `--access`/`--all`, never by interpolating user input into `--expr`.
 
-**Note:** Access restriction is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct `--db`/sqlite3 access to the database file can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access`/`--all` values passed to `read`/`find`.
+**Note:** Access restriction is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct access to the underlying database (the local file, or the remote Turso/libSQL database and its token) can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access`/`--all` values passed to `read`/`find`.
 
 For full command docs see [aux4 repository read](./commands/repository/read) and [aux4 repository find](./commands/repository/find).
 
@@ -277,7 +290,7 @@ Write a record with nested JSON and read it back. The nested structure is preser
 
 ```bash
 aux4 repository write orders --id order1 --data '{"customer":{"name":"Alice","email":"alice@example.com"},"items":[{"id":"item1","qty":2},{"id":"item2","qty":1}],"total":29.98}' --metadata '{"status":"pending","priority":"high"}'
-aux4 repository read orders --id order1
+aux4 repository read orders --id order1 --raw true
 ```
 
 Expected output (excerpt):
@@ -319,7 +332,7 @@ Write several records, then find those matching a numeric condition.
 aux4 repository write users --id user1 --data '{"name":"John","age":30,"city":"NYC"}' --metadata '{"role":"admin"}'
 aux4 repository write users --id user2 --data '{"name":"Jane","age":25,"city":"LA"}' --metadata '{"role":"user"}'
 aux4 repository write users --id user3 --data '{"name":"Bob","age":35,"city":"NYC"}' --metadata '{"role":"user"}'
-aux4 repository find users --expr "age > 28"
+aux4 repository find users --expr "age > 28" --raw true
 ```
 
 Expected output (excerpt):
@@ -361,7 +374,7 @@ aux4 repository write products --id prod2 --data '{"name":"Gadget","price":29.99
 aux4 repository write products --id prod3 --data '{"name":"Tool","price":39.99}' --metadata '{"category":"hardware"}'
 aux4 repository write products --id prod4 --data '{"name":"Device","price":49.99}' --metadata '{"category":"electronics"}'
 aux4 repository delete products --id prod1 --id prod3 --id prod4
-aux4 repository read products
+aux4 repository read products --raw true
 ```
 
 Expected output (excerpt):

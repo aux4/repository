@@ -1,0 +1,255 @@
+{
+  "scope": "aux4",
+  "name": "repository",
+  "version": "1.3.0",
+  "description": "Simplified aux4 database",
+  "tags": [
+    "aux4",
+    "database",
+    "repository"
+  ],
+  "profiles": [
+    {
+      "name": "main",
+      "commands": [
+        {
+          "name": "repository",
+          "execute": [
+            "profile:repository"
+          ],
+          "help": {
+            "text": "Simplified aux4 database"
+          }
+        }
+      ]
+    },
+    {
+      "name": "repository",
+      "commands": [
+        {
+          "name": "init",
+          "private": true,
+          "execute": [
+            "${packageDir}/aux4-repository init values(db, repository)"
+          ],
+          "help": {
+            "text": "Initialize the aux4 repository",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to initialize",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to initialize",
+                "arg": true
+              }
+            ]
+          }
+        },
+        {
+          "name": "write",
+          "execute": [
+            "stdin:${packageDir}/aux4-repository write values(db, repository, id, data, metadata, ttl, access)"
+          ],
+          "help": {
+            "text": "Write to the aux4 repository",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to write to",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to write to",
+                "arg": true
+              },
+              {
+                "name": "id",
+                "text": "The id to write to the repository",
+                "default": ""
+              },
+              {
+                "name": "data",
+                "text": "The data to write to the repository (JSON string)",
+                "default": ""
+              },
+              {
+                "name": "metadata",
+                "text": "Optional metadata to store with the record",
+                "default": "{}"
+              },
+              {
+                "name": "ttl",
+                "text": "Time-to-live in seconds; stored as an absolute expiry epoch under metadata.ttl. Expired records are hidden from read/find and removed by clean",
+                "default": ""
+              },
+              {
+                "name": "access",
+                "text": "Comma-separated access labels; stored as a JSON array under metadata.access. When set, the record is only visible to read/find callers passing a matching --access label (or --all true). When empty, the record is public.",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "read",
+          "execute": [
+            "${packageDir}/aux4-repository read values(db, repository, id, raw, includeExpired, access, all)"
+          ],
+          "help": {
+            "text": "Read from the aux4 repository",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to read from",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to read from",
+                "arg": true
+              },
+              {
+                "name": "id",
+                "text": "The id to read from the repository",
+                "default": ""
+              },
+              {
+                "name": "raw",
+                "text": "Include metadata in the output",
+                "default": "false"
+              },
+              {
+                "name": "includeExpired",
+                "text": "Include records whose ttl has expired (hidden by default)",
+                "default": "false"
+              },
+              {
+                "name": "access",
+                "text": "Comma-separated access labels held by the caller. Public records (written without --access) are always visible; restricted records are visible only when one of their labels matches. With no --access, only public records are returned.",
+                "default": ""
+              },
+              {
+                "name": "all",
+                "text": "Bypass access filtering and return every record regardless of its access labels (public and restricted). Defaults to false.",
+                "default": "false"
+              }
+            ]
+          }
+        },
+        {
+          "name": "find",
+          "execute": [
+            "${packageDir}/aux4-repository find values(db, repository, expr, raw, includeExpired, access, all)"
+          ],
+          "help": {
+            "text": "Find in the aux4 repository using SQL expressions",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to find in",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to find in",
+                "arg": true
+              },
+              {
+                "name": "expr",
+                "text": "SQL expression for filtering (e.g., 'age > 30 and name like \"%John%\"')"
+              },
+              {
+                "name": "raw",
+                "text": "Include metadata in the output",
+                "default": "false"
+              },
+              {
+                "name": "includeExpired",
+                "text": "Include records whose ttl has expired (hidden by default)",
+                "default": "false"
+              },
+              {
+                "name": "access",
+                "text": "Comma-separated access labels held by the caller. Public records (written without --access) are always visible; restricted records are visible only when one of their labels matches. With no --access, only public records are returned. Applied on top of the --expr filter.",
+                "default": ""
+              },
+              {
+                "name": "all",
+                "text": "Bypass access filtering and return every record regardless of its access labels (public and restricted). Defaults to false.",
+                "default": "false"
+              }
+            ]
+          }
+        },
+        {
+          "name": "delete",
+          "execute": [
+            "${packageDir}/aux4-repository delete values(db, repository) value(id*)"
+          ],
+          "help": {
+            "text": "Delete from the aux4 repository",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to delete from",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to delete from",
+                "arg": true
+              },
+              {
+                "name": "id",
+                "text": "The id to delete from the repository",
+                "multiple": true
+              }
+            ]
+          }
+        },
+        {
+          "name": "truncate",
+          "execute": [
+            "confirm:Are you sure you want to truncate the repository '${repository}'? This will delete all records.",
+            "${packageDir}/aux4-repository truncate values(db, repository)"
+          ],
+          "help": {
+            "text": "Truncate the aux4 repository (delete all records)",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to truncate",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to truncate",
+                "arg": true
+              }
+            ]
+          }
+        },
+        {
+          "name": "clean",
+          "execute": [
+            "${packageDir}/aux4-repository clean values(db)"
+          ],
+          "help": {
+            "text": "Remove expired records (ttl in the past) from every repository in the database",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to clean",
+                "default": ".local.db"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

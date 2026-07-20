@@ -10,7 +10,7 @@ For each repository, the command prints a one-line summary reporting how many ex
 aux4 repository clean [--db <path>]
 ```
 
---db   The database to clean (default: `.local.db`)
+--db   The database to clean — a local file path (default: `.local.db`) or a remote `libsql://` URL. For remote Turso/libSQL databases the auth token is read from the `TURSO_AUTH_TOKEN` environment variable.
 
 #### Example
 

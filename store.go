@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-//go:embed sql/create.sql
+//go:embed package/sql/create.sql
 var createSQL string
 
 // Row is a single stored record as returned by the backend.

@@ -4,6 +4,8 @@ When an --id is provided, the command returns an array with the single matching 
 
 Use this command when you need to retrieve stored JSON objects from an aux4 repository and work with them as native JSON (the command outputs valid JSON suitable for piping into jq or other JSON processors). It is commonly paired with the write and find commands to populate and query repository data.
 
+**Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database (auth token read from the `TURSO_AUTH_TOKEN` environment variable). Behavior is identical on both backends.
+
 By default, records whose metadata `ttl` (an absolute expiry epoch, set via `write --ttl`) is in the past are hidden from the result — both when reading all records and when reading a single record by `--id`. Records with no `ttl` are always returned. Pass `--includeExpired true` to skip this filter and return expired records as well (useful for debugging or manual sweeps).
 
 ### Data restriction
@@ -18,7 +20,7 @@ Records written with `write --access <labels>` carry one or more access labels u
 
 The label filter applies both when listing all records and when reading a single record by `--id`: reading a restricted record by id without a matching label returns an empty array. The caller's `--access` labels are safely single-quoted before being embedded in the query, so a label cannot inject SQL.
 
-**Note:** This is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct `--db`/sqlite3 access to the database file can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access`/`--all` values.
+**Note:** This is advisory scoping enforced at query time, not a hard security boundary. Anyone with direct access to the underlying database (the local file, or the remote database and its token) can read every record regardless of its labels. The enforcing layer is whoever owns the database and controls the `--access`/`--all` values.
 
 ### Example: Read all records from a repository
 

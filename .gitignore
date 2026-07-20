@@ -80,10 +80,6 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-# dist holds committed pkger multi-platform overrides (dist/<os>/.aux4); ignore other dist output only
-dist/*
-!dist/darwin
-!dist/linux
 
 # Gatsby files
 .cache/
@@ -144,5 +140,6 @@ vite.config.ts.timestamp-*
 **/*.db
 *.zip
 
-# Go build output (local binary; dist/ holds cross-compiled binaries)
-/aux4-repository
+# Go build output: local test binary + cross-compiled dist binaries
+package/aux4-repository
+package/dist/**
