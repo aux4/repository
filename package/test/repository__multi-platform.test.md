@@ -12,9 +12,6 @@ binary and the single, unified `repository` command surface (no leftover
 
 ```beforeAll
 rm -rf _mp && mkdir -p _mp/pkg/repository _mp/out
-( cd ../.. && aux4 build ) >/dev/null 2>&1
-cp -R ../.aux4 ../sql ../man ../LICENSE ../README.md ../dist _mp/pkg/repository/
-aux4 aux4 pkger build _mp/pkg/repository --out _mp/out >/dev/null 2>&1
 ```
 
 ```afterAll
@@ -23,10 +20,19 @@ rm -rf _mp
 
 ## pkger build
 
-### emits one zip per platform/arch plus the meta zip
+### builds every platform and emits one zip per platform/arch plus the meta zip
+
+The 8-way cross-compile plus `pkger build` is the slow step, so it runs here (in a
+test `execute` with an explicit timeout) rather than in a hook — a cold machine
+would otherwise exceed the default per-hook timeout. Later tests read the artifacts
+this step produces.
+
+```timeout
+180000
+```
 
 ```execute
-ls _mp/out/ | grep -E "_aux4_repository_1.3.0.zip$|^aux4_repository_1.3.0.zip$" | sort
+( cd ../.. && aux4 build ) >/dev/null 2>&1 && cp -R ../.aux4 ../sql ../man ../LICENSE ../README.md ../dist _mp/pkg/repository/ && aux4 aux4 pkger build _mp/pkg/repository --out _mp/out >/dev/null 2>&1 && ls _mp/out/ | grep -E "_aux4_repository_1.3.0.zip$|^aux4_repository_1.3.0.zip$" | sort
 ```
 
 ```expect
