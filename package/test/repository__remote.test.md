@@ -94,6 +94,19 @@ if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"u1","name":"John","age":30,"to
 [{"id":"u1","name":"John","age":30,"total":45.50}]
 ```
 
+### read with --select projects fields over the remote backend
+
+Field projection works identically on the remote backend: only the selected
+fields are returned, with `id` first.
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"u1","name":"John"},{"id":"u2","name":"Jane"}]'; else aux4 repository read --db "$TURSO_TEST_URL" users --all true --select "name" --sort id; fi
+```
+
+```expect:partial
+[{"id":"u1","name":"John"},{"id":"u2","name":"Jane"}]
+```
+
 ### find rejects SQL comment / terminator sequences over the remote backend
 
 ```execute

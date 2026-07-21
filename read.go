@@ -5,7 +5,7 @@ package main
 // so it can only narrow the authorized rowset). Ordering and pagination
 // (--sort/--limit/--offset) are applied on the outer query. Empty result prints
 // "[]" and exits with code 4.
-// args: db, repository, id, raw, includeExpired, access, all, sort, limit, offset
+// args: db, repository, id, raw, includeExpired, access, all, sort, limit, offset, select
 func cmdRead(args []string) error {
 	db := arg(args, 0)
 	repo := arg(args, 1)
@@ -17,9 +17,15 @@ func cmdRead(args []string) error {
 	sortArg := arg(args, 7)
 	limitArg := arg(args, 8)
 	offsetArg := arg(args, 9)
+	selectArg := arg(args, 10)
 
-	// Validate ordering/pagination before building SQL or touching the store.
+	// Validate ordering/pagination and the select projection before building SQL
+	// or touching the store.
 	pagination, pagArgs, err := orderAndPaginate(sortArg, limitArg, offsetArg)
+	if err != nil {
+		return err
+	}
+	selectFields, err := parseSelect(selectArg)
 	if err != nil {
 		return err
 	}
@@ -51,5 +57,5 @@ func cmdRead(args []string) error {
 		return err
 	}
 
-	return outputRows(rows, raw)
+	return outputRows(rows, raw, selectFields)
 }

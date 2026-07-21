@@ -100,7 +100,7 @@
         {
           "name": "read",
           "execute": [
-            "nout:${packageDir}/aux4-repository read values(db, repository, id, raw, includeExpired, access, all, sort, limit, offset)"
+            "nout:${packageDir}/aux4-repository read values(db, repository, id, raw, includeExpired, access, all, sort, limit, offset, select)"
           ],
           "render": {
             "tty": "aux4 render table"
@@ -157,6 +157,11 @@
                 "name": "offset",
                 "text": "Number of leading records to skip for pagination (non-negative integer). Empty starts from the first record.",
                 "default": ""
+              },
+              {
+                "name": "select",
+                "text": "Comma-separated list of fields to project, in the requested order (e.g. 'first_name, last_name, age'). id is always included first; absent fields are omitted; dotted paths (address.city) navigate nested objects and are keyed by the path as written. Empty returns all fields.",
+                "default": ""
               }
             ]
           }
@@ -164,7 +169,7 @@
         {
           "name": "find",
           "execute": [
-            "nout:${packageDir}/aux4-repository find values(db, repository, expr, raw, includeExpired, access, all, sort, limit, offset)"
+            "nout:${packageDir}/aux4-repository find values(db, repository, expr, raw, includeExpired, access, all, sort, limit, offset, select)"
           ],
           "render": {
             "tty": "aux4 render table"
@@ -219,6 +224,11 @@
               {
                 "name": "offset",
                 "text": "Number of leading records to skip for pagination (non-negative integer). Empty starts from the first record.",
+                "default": ""
+              },
+              {
+                "name": "select",
+                "text": "Comma-separated list of fields to project, in the requested order (e.g. 'first_name, last_name, age'). id is always included first; absent fields are omitted; dotted paths (address.city) navigate nested objects and are keyed by the path as written. Empty returns all fields.",
                 "default": ""
               }
             ]

@@ -122,3 +122,26 @@ func parseNonNegInt(s, flag string) (int64, error) {
 	}
 	return n, nil
 }
+
+// parseSelect parses a comma-separated --select field list, validating each field
+// against the same strict dot-identifier regex as --sort. Projection happens in
+// Go (never in SQL), so no field name ever reaches a query — zero injection
+// surface. An empty value returns nil (project all fields).
+func parseSelect(selectArg string) ([]string, error) {
+	s := strings.TrimSpace(selectArg)
+	if s == "" {
+		return nil, nil
+	}
+	var fields []string
+	for _, f := range strings.Split(s, ",") {
+		f = strings.TrimSpace(f)
+		if f == "" {
+			continue
+		}
+		if !sortFieldRe.MatchString(f) {
+			return nil, fmt.Errorf("invalid --select field %q", f)
+		}
+		fields = append(fields, f)
+	}
+	return fields, nil
+}

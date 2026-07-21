@@ -20,7 +20,7 @@ func translateWhere(expr string) string {
 // cmdFind queries records matching a --expr, applying access/ttl visibility in an
 // inner subquery so the user expression can only narrow the authorized rowset.
 // Ordering and pagination (--sort/--limit/--offset) are applied on the outer query.
-// args: db, repository, expr, raw, includeExpired, access, all, sort, limit, offset
+// args: db, repository, expr, raw, includeExpired, access, all, sort, limit, offset, select
 func cmdFind(args []string) error {
 	db := arg(args, 0)
 	repo := arg(args, 1)
@@ -32,6 +32,7 @@ func cmdFind(args []string) error {
 	sortArg := arg(args, 7)
 	limitArg := arg(args, 8)
 	offsetArg := arg(args, 9)
+	selectArg := arg(args, 10)
 
 	// Reject SQL comment / statement-terminator sequences before building SQL.
 	if strings.Contains(expr, ";") || strings.Contains(expr, "--") || strings.Contains(expr, "/*") {
@@ -39,8 +40,13 @@ func cmdFind(args []string) error {
 		os.Exit(exitInjection)
 	}
 
-	// Validate ordering/pagination before building SQL or touching the store.
+	// Validate ordering/pagination and the select projection before building SQL
+	// or touching the store.
 	pagination, pagArgs, err := orderAndPaginate(sortArg, limitArg, offsetArg)
+	if err != nil {
+		return err
+	}
+	selectFields, err := parseSelect(selectArg)
 	if err != nil {
 		return err
 	}
@@ -70,5 +76,5 @@ func cmdFind(args []string) error {
 		os.Exit(exitInjection)
 	}
 
-	return outputRows(rows, raw)
+	return outputRows(rows, raw, selectFields)
 }

@@ -151,6 +151,27 @@ aux4 repository find products --expr "inStock = 1" --sort "price" --limit 10
 
 Ordering and pagination apply on top of `--expr`, `--access`, and ttl visibility — the access/ttl filter runs first, then results are ordered and paged.
 
+## Selecting fields (projection)
+
+Both `read` and `find` accept `--select` to return only a subset of fields, in the order listed:
+
+```bash
+aux4 repository read users --select "first_name, last_name, age"
+```
+
+- **`id` is always included first**, then the selected data fields in the requested order (`--select "age, name"` puts `age` before `name`). Listing `id` explicitly does not duplicate it.
+- **Absent fields are omitted** — this is a schema-less store, so if a document lacks a selected field it is simply left out of that row (never emitted as `null`).
+- **Dotted nested paths** are supported: `--select "address.city"` navigates into the nested object and returns the value keyed by the path as written (`{"id":...,"address.city":"NYC"}`).
+- Field names are validated (letters, digits, underscore, dot-separated segments); an invalid name is rejected with an error.
+- Empty `--select` returns all fields (the default).
+
+Projection is applied **in the tool after reading**, never in SQL — no field name is ever placed into a query, so `--select` has no injection surface. It composes with `--expr`, `--sort`, `--limit`/`--offset`, and `--access`; with `--raw`, the `__metadata` object is appended after the selected fields.
+
+```bash
+# project two fields from a filtered, sorted, paged result
+aux4 repository find users --expr "age > 21" --select "first_name, age" --sort "age desc" --limit 10
+```
+
 ## Expiring records with a time-to-live (TTL)
 
 Records can be given an expiry using the `--ttl <seconds>` flag on `write`. The value is a duration in seconds; it is converted to an absolute expiry epoch using the database clock and merged into the record metadata under the `ttl` key. Any user-supplied `--metadata` is preserved:

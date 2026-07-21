@@ -89,6 +89,14 @@ aux4 repository find docs --expr "team = 'x'"
 aux4 repository find docs --expr "team = 'x'" --all true
 ```
 
+### Field projection
+
+`--select "a, b, c"` returns only the listed fields, in the order given. `id` is always included first (and never duplicated if you also list it); fields absent from a document are omitted rather than emitted as `null`; dotted paths (`address.city`) navigate nested objects and are keyed by the path as written. Field names are validated (letters, digits, underscore, dot-separated); an invalid name is rejected. Projection happens in the tool after reading — no field name enters a query — and composes with `--expr`, `--sort`, `--limit`/`--offset`, and `--access`. With `--raw`, `__metadata` is appended after the selected fields. Empty `--select` returns all fields.
+
+```bash
+aux4 repository find users --expr "age > 21" --select "first_name, age"
+```
+
 ### Ordering and pagination
 
 Matches can be ordered with `--sort` and paged with `--limit` / `--offset`, applied on top of the `--expr` and access/ttl filters.

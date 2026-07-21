@@ -84,6 +84,14 @@ aux4 repository read docs
 aux4 repository read docs --all true
 ```
 
+### Field projection
+
+`--select "a, b, c"` returns only the listed fields, in the order given. `id` is always included first (and never duplicated if you also list it); fields absent from a document are omitted rather than emitted as `null`; dotted paths (`address.city`) navigate nested objects and are keyed by the path as written. Field names are validated (letters, digits, underscore, dot-separated); an invalid name is rejected. Projection happens in the tool after reading — no field name enters a query — and composes with `--sort`, `--limit`/`--offset`, and `--access`. With `--raw`, `__metadata` is appended after the selected fields. Empty `--select` returns all fields.
+
+```bash
+aux4 repository read users --select "first_name, last_name, age"
+```
+
 ### Ordering and pagination
 
 Results can be ordered with `--sort` and paged with `--limit` / `--offset`. These apply after the access/ttl visibility filter and the `--id` filter.
