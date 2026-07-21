@@ -97,7 +97,7 @@
         {
           "name": "read",
           "execute": [
-            "${packageDir}/aux4-repository read values(db, repository, id, raw, includeExpired, access, all)"
+            "${packageDir}/aux4-repository read values(db, repository, id, raw, includeExpired, access, all, sort, limit, offset)"
           ],
           "help": {
             "text": "Read from the aux4 repository",
@@ -136,6 +136,21 @@
                 "name": "all",
                 "text": "Bypass access filtering and return every record regardless of its access labels (public and restricted). Defaults to false.",
                 "default": "false"
+              },
+              {
+                "name": "sort",
+                "text": "Comma-separated list of 'field [asc|desc]' clauses (asc is the default), e.g. 'age desc, name'. Data fields use dotted paths (specs.wireless); id, createdAt, and updatedAt sort by the record's id and timestamps.",
+                "default": ""
+              },
+              {
+                "name": "limit",
+                "text": "Maximum number of records to return (non-negative integer). Empty returns all matching records.",
+                "default": ""
+              },
+              {
+                "name": "offset",
+                "text": "Number of leading records to skip for pagination (non-negative integer). Empty starts from the first record.",
+                "default": ""
               }
             ]
           }
@@ -143,7 +158,7 @@
         {
           "name": "find",
           "execute": [
-            "${packageDir}/aux4-repository find values(db, repository, expr, raw, includeExpired, access, all)"
+            "${packageDir}/aux4-repository find values(db, repository, expr, raw, includeExpired, access, all, sort, limit, offset)"
           ],
           "help": {
             "text": "Find in the aux4 repository using SQL expressions",
@@ -181,6 +196,21 @@
                 "name": "all",
                 "text": "Bypass access filtering and return every record regardless of its access labels (public and restricted). Defaults to false.",
                 "default": "false"
+              },
+              {
+                "name": "sort",
+                "text": "Comma-separated list of 'field [asc|desc]' clauses (asc is the default), e.g. 'age desc, name'. Data fields use dotted paths (specs.wireless); id, createdAt, and updatedAt sort by the record's id and timestamps.",
+                "default": ""
+              },
+              {
+                "name": "limit",
+                "text": "Maximum number of records to return (non-negative integer). Empty returns all matching records.",
+                "default": ""
+              },
+              {
+                "name": "offset",
+                "text": "Number of leading records to skip for pagination (non-negative integer). Empty starts from the first record.",
+                "default": ""
               }
             ]
           }

@@ -143,6 +143,36 @@ Example expected output (excerpt):
 
 For full command docs see [aux4 repository find](./commands/repository/find).
 
+## Ordering and pagination
+
+Both `read` and `find` accept `--sort`, `--limit`, and `--offset` to order results and page through them.
+
+`--sort` is a comma-separated list of `field [asc|desc]` clauses. The direction is **space-separated** and `asc` is the default when omitted; later clauses break ties left by earlier ones:
+
+```bash
+# order by age descending, then name ascending
+aux4 repository read users --sort "age desc, name"
+```
+
+- **Data fields** sort by their JSON value and support dotted nested paths: `--sort "specs.rank desc"`.
+- The **special fields** `id`, `createdAt`, and `updatedAt` sort by the record's id and its creation/update timestamps: `--sort "createdAt desc"`.
+- Field names are validated (letters, digits, underscore, dot-separated segments) and directions are limited to `asc`/`desc`; an invalid field or direction is rejected with an error.
+
+`--limit N` caps the number of returned records and `--offset N` skips the first N — both non-negative integers. `--offset` may be used without `--limit`:
+
+```bash
+# newest 10 sessions, most recent first
+aux4 repository read sessions --sort "createdAt desc" --limit 10
+
+# page 2 of 20-per-page users ordered by name
+aux4 repository read users --sort "name" --limit 20 --offset 20
+
+# ten cheapest in-stock products matching an expression
+aux4 repository find products --expr "inStock = 1" --sort "price" --limit 10
+```
+
+Ordering and pagination apply on top of `--expr`, `--access`, and ttl visibility — the access/ttl filter runs first, then results are ordered and paged.
+
 ## Expiring records with a time-to-live (TTL)
 
 Records can be given an expiry using the `--ttl <seconds>` flag on `write`. The value is a duration in seconds; it is converted to an absolute expiry epoch using the database clock and merged into the record metadata under the `ttl` key. Any user-supplied `--metadata` is preserved:

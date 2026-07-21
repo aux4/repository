@@ -123,6 +123,26 @@ if [ -z "$TURSO_TEST_URL" ]; then printf '[\n  {\n    "id": "u1",\n    "name": "
 ]
 ```
 
+### read with --sort and --limit over the remote backend
+
+Ordering and pagination work identically on the remote backend: sorting by `age`
+descending and limiting to one record returns the oldest user.
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then printf '[\n  {\n    "id": "u1",\n    "name": "John",\n    "age": 30,\n    "total": 45.50\n  }\n]\n'; else aux4 repository read --db "$TURSO_TEST_URL" users --all true --sort "age desc" --limit 1; fi
+```
+
+```expect:partial
+[
+  {
+    "id": "u1",
+    "name": "John",
+    "age": 30,
+    "total": 45.50
+  }
+]
+```
+
 ### find rejects SQL comment / terminator sequences over the remote backend
 
 ```execute

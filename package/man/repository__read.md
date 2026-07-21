@@ -115,4 +115,25 @@ aux4 repository read docs
 aux4 repository read docs --all true
 ```
 
+### Ordering and pagination
+
+Results can be ordered with `--sort` and paged with `--limit` / `--offset`. These apply after the access/ttl visibility filter and the `--id` filter.
+
+- **`--sort`** is a comma-separated list of `field [asc|desc]` clauses (space-separated direction; `asc` is the default when omitted). Later clauses break ties left by earlier ones. Example: `--sort "age desc, name"` orders by `age` descending, then `name` ascending.
+  - Data fields sort by their JSON value and support dotted nested paths, e.g. `--sort "specs.rank"`.
+  - The special fields `id`, `createdAt`, and `updatedAt` sort by the record's id and its creation/update timestamps.
+  - Field names are validated (letters, digits, underscore, dot-separated) and directions are restricted to `asc`/`desc`; an invalid field or direction is rejected with an error.
+- **`--limit N`** caps the number of returned records; **`--offset N`** skips the first N (both non-negative integers, applied as bound parameters). `--offset` without `--limit` is allowed. Empty values leave the result unbounded and in its natural order.
+
+```bash
+# newest 10 sessions, most recent first
+aux4 repository read sessions --sort "createdAt desc" --limit 10
+
+# page 2 of 20-per-page users ordered by name
+aux4 repository read users --sort "name" --limit 20 --offset 20
+
+# order by a nested field
+aux4 repository read products --sort "specs.rank desc"
+```
+
 The read command is most useful together with the repository write and find commands. For writing new items, see [aux4 repository write](./write); for filtering using expressions, see [aux4 repository find](./find). Expired records can be swept from every repository with [aux4 repository clean](./clean).

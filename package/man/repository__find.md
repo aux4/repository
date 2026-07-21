@@ -99,4 +99,19 @@ aux4 repository find docs --expr "team = 'x'"
 aux4 repository find docs --expr "team = 'x'" --all true
 ```
 
+### Ordering and pagination
+
+Matches can be ordered with `--sort` and paged with `--limit` / `--offset`, applied on top of the `--expr` and access/ttl filters.
+
+- **`--sort`** is a comma-separated list of `field [asc|desc]` clauses (space-separated direction; `asc` is the default). Later clauses break ties. Data fields sort by their JSON value and support dotted nested paths (`specs.rank`); the special fields `id`, `createdAt`, and `updatedAt` sort by the record's id and timestamps. Field names are validated and directions are restricted to `asc`/`desc`.
+- **`--limit N`** / **`--offset N`** are non-negative integers applied as bound parameters; `--offset` may be used without `--limit`.
+
+```bash
+# ten cheapest in-stock products
+aux4 repository find products --expr "inStock = 1" --sort "price" --limit 10
+
+# next page of results ordered by rating descending
+aux4 repository find products --expr "category = 'electronics'" --sort "rating desc" --limit 20 --offset 20
+```
+
 When no records match the expression the command prints an empty JSON array and exits with a non-zero code; this makes it straightforward to use find in scripts and tests that need to detect absence of results.

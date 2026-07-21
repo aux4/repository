@@ -19,7 +19,8 @@ func translateWhere(expr string) string {
 
 // cmdFind queries records matching a --expr, applying access/ttl visibility in an
 // inner subquery so the user expression can only narrow the authorized rowset.
-// args: db, repository, expr, raw, includeExpired, access, all
+// Ordering and pagination (--sort/--limit/--offset) are applied on the outer query.
+// args: db, repository, expr, raw, includeExpired, access, all, sort, limit, offset
 func cmdFind(args []string) error {
 	db := arg(args, 0)
 	repo := arg(args, 1)
@@ -28,6 +29,9 @@ func cmdFind(args []string) error {
 	includeExpired := arg(args, 4) == "true"
 	accessArg := arg(args, 5)
 	all := arg(args, 6) == "true"
+	sortArg := arg(args, 7)
+	limitArg := arg(args, 8)
+	offsetArg := arg(args, 9)
 
 	// Reject SQL comment / statement-terminator sequences before building SQL.
 	if strings.Contains(expr, ";") || strings.Contains(expr, "--") || strings.Contains(expr, "/*") {
@@ -35,11 +39,18 @@ func cmdFind(args []string) error {
 		os.Exit(exitInjection)
 	}
 
+	// Validate ordering/pagination before building SQL or touching the store.
+	pagination, pagArgs, err := orderAndPaginate(sortArg, limitArg, offsetArg)
+	if err != nil {
+		return err
+	}
+
 	translated := translateWhere(expr)
 	visClause, queryArgs := visibilityClause(includeExpired, all, accessArg)
+	queryArgs = append(queryArgs, pagArgs...)
 
 	inner := "SELECT " + innerColumns + " FROM " + repo + " WHERE 1=1" + visClause
-	query := "SELECT " + selectColumns + " FROM ( " + inner + " ) WHERE (" + translated + ")"
+	query := "SELECT " + selectColumns + " FROM ( " + inner + " ) WHERE (" + translated + ")" + pagination
 
 	store, err := NewStore(db)
 	if err != nil {
