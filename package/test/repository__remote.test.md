@@ -145,6 +145,49 @@ if [ -z "$TURSO_TEST_URL" ]; then printf 'u1\n'; else aux4 repository touch --db
 u1
 ```
 
+### import bulk-upserts a JSON array in one transaction over the remote backend
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then printf 'b1\nb2\n'; else echo '[{"id":"b1","v":1},{"id":"b2","v":2}]' | aux4 repository import --db "$TURSO_TEST_URL" bulk; fi
+```
+
+```expect:partial
+b1
+b2
+```
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"b1","v":1},{"id":"b2","v":2}]'; else aux4 repository read --db "$TURSO_TEST_URL" bulk --sort id; fi
+```
+
+```expect:partial
+[{"id":"b1","v":1},{"id":"b2","v":2}]
+```
+
+### list includes the imported repository over the remote backend
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then printf '["bulk"]'; else aux4 repository list --db "$TURSO_TEST_URL"; fi
+```
+
+```expect:partial
+"bulk"
+```
+
+### drop removes the repository over the remote backend
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then echo -n ""; else aux4 repository drop --db "$TURSO_TEST_URL" bulk --yes; fi
+```
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then printf ''; else aux4 repository read --db "$TURSO_TEST_URL" bulk; fi
+```
+
+```error:regex
+^(\[\]|)$
+```
+
 ### find rejects SQL comment / terminator sequences over the remote backend
 
 ```execute

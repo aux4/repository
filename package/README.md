@@ -306,24 +306,51 @@ aux4 repository clean --db /var/data/app.db
 
 For full command docs see [aux4 repository clean](./commands/repository/clean).
 
-## Deleting and truncating
+## Bulk loading (import)
 
-- delete removes one or more records by id. Supply multiple --id flags to remove multiple records.
-- truncate deletes all records in a repository (it asks for confirmation unless you pass --yes).
-
-Example — delete a single record:
+`import` reads a **JSON array on stdin** and upserts every element in a **single transaction** — if any element fails, the whole import rolls back and nothing is written. This is both faster and safer than a loop of `write` calls, especially against a remote database. Each element is treated like a `write` payload (id from the element's `id` or a generated UUID; `data` is the element with `id` stripped; existing ids are overwritten). It prints one id per line, in input order.
 
 ```bash
+echo '[{"id":"u1","name":"Ann"},{"name":"Bo"},{"id":"u3","name":"Cy"}]' | aux4 repository import users
+```
+
+`--ttl` and `--access` apply uniformly to every imported record. An empty array writes nothing (exit 0); a non-array or malformed payload is rejected and nothing is written.
+
+```bash
+# import a batch of short-lived, team-scoped records
+echo '[{"id":"s1"},{"id":"s2"}]' | aux4 repository import sessions --ttl 3600 --access "team-a"
+```
+
+## Listing repositories (list)
+
+`list` prints the repositories (tables) in a database as a compact JSON array of names, sorted alphabetically. It takes only `--db`. An empty database prints `[]` (exit 0).
+
+```bash
+aux4 repository list
+```
+
+```json
+["accounts","sessions","users"]
+```
+
+## Deleting, truncating, and dropping
+
+- **delete** removes one or more records by id. Supply multiple `--id` flags to remove multiple records.
+- **truncate** deletes all records in a repository but keeps the (empty) table, so it can immediately accept new writes. It asks for confirmation unless you pass `--yes`.
+- **drop** removes an entire repository — table, schema, and data. It also asks for confirmation unless you pass `--yes`, and is idempotent (dropping a non-existent repository is a harmless no-op). Use `truncate` to empty a repository, `drop` to remove it entirely.
+
+```bash
+# remove a single record
 aux4 repository delete users --id user1
-```
 
-Example — truncate a repository:
-
-```bash
+# empty a repository (schema kept)
 aux4 repository truncate users --yes
+
+# remove a repository entirely (schema + data)
+aux4 repository drop sessions --yes
 ```
 
-For full command docs see [aux4 repository delete](./commands/repository/delete) and [aux4 repository truncate](./commands/repository/truncate).
+For full command docs see [aux4 repository delete](./commands/repository/delete), [aux4 repository truncate](./commands/repository/truncate), and [aux4 repository drop](./commands/repository/drop).
 
 ## Examples
 

@@ -18,7 +18,7 @@ func arg(args []string, i int) string {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Error: missing command (expected init, write, read, find, count, patch, touch, delete, truncate or clean)")
+		fmt.Fprintln(os.Stderr, "Error: missing command (expected init, write, read, find, count, patch, touch, import, list, drop, delete, truncate or clean)")
 		os.Exit(1)
 	}
 
@@ -41,6 +41,12 @@ func main() {
 		err = cmdPatch(args)
 	case "touch":
 		err = cmdTouch(args)
+	case "import":
+		err = cmdImport(args)
+	case "list":
+		err = cmdList(args)
+	case "drop":
+		err = cmdDrop(args)
 	case "delete":
 		err = cmdDelete(args)
 	case "truncate":

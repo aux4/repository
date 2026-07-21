@@ -93,7 +93,7 @@ rm -rf _mp/x_man && mkdir -p _mp/x_man && unzip -oq _mp/out/linux_amd64_aux4_rep
 ```
 
 ```expect
-init,write,read,find,count,patch,touch,delete,truncate,clean
+init,write,read,find,count,patch,touch,import,list,drop,delete,truncate,clean
 ```
 
 ### the retired translate-where profile is absent

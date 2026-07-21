@@ -17,6 +17,13 @@ type Row struct {
 	UpdatedAt string
 }
 
+// UpsertRecord is one record to write during a bulk import.
+type UpsertRecord struct {
+	ID       string
+	Data     string
+	Metadata string
+}
+
 // Store is the storage backend contract. A local (modernc.org/sqlite) backend
 // implements it today; a remote (Turso/libSQL) backend can be added behind the
 // same interface, selected by the --db scheme in NewStore.
@@ -25,6 +32,9 @@ type Store interface {
 	Init(repo string) error
 	// Upsert inserts or updates a record by id.
 	Upsert(repo, id, data, metadata string) error
+	// BulkUpsert upserts many records in a single transaction (rolled back on any
+	// error, so an import either fully applies or writes nothing).
+	BulkUpsert(repo string, records []UpsertRecord) error
 	// Query runs a read query with bound parameters and returns the rows.
 	Query(query string, args ...any) ([]Row, error)
 	// QueryInt runs a query returning a single integer (e.g. count(*)).

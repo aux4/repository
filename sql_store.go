@@ -22,6 +22,23 @@ func (s *sqlStore) Upsert(repo, id, data, metadata string) error {
 	return err
 }
 
+func (s *sqlStore) BulkUpsert(repo string, records []UpsertRecord) error {
+	query := "INSERT INTO " + repo + " (id, data, metadata) VALUES (?, ?, ?) " +
+		"ON CONFLICT(id) DO UPDATE SET data = excluded.data, metadata = excluded.metadata, updated_at = CURRENT_TIMESTAMP"
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	for _, r := range records {
+		if _, err := tx.Exec(query, r.ID, r.Data, r.Metadata); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
 func (s *sqlStore) Query(query string, args ...any) ([]Row, error) {
 	rows, err := s.db.Query(query, args...)
 	if err != nil {

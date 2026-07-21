@@ -343,6 +343,75 @@
           }
         },
         {
+          "name": "import",
+          "execute": [
+            "stdin:${packageDir}/aux4-repository import values(db, repository, ttl, access)"
+          ],
+          "help": {
+            "text": "Bulk-upsert a JSON array of records from stdin in a single transaction",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to import into",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to import into",
+                "arg": true
+              },
+              {
+                "name": "ttl",
+                "text": "Optional time-to-live in seconds applied uniformly to every imported record (stored as an absolute expiry epoch under metadata.ttl).",
+                "default": ""
+              },
+              {
+                "name": "access",
+                "text": "Optional comma-separated access labels applied uniformly to every imported record (stored under metadata.access).",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "list",
+          "execute": [
+            "${packageDir}/aux4-repository list values(db)"
+          ],
+          "help": {
+            "text": "List the repositories (tables) in the database as a JSON array",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to list repositories from",
+                "default": ".local.db"
+              }
+            ]
+          }
+        },
+        {
+          "name": "drop",
+          "execute": [
+            "confirm:Are you sure you want to drop the repository '${repository}'? This removes the table, its schema and all its records.",
+            "${packageDir}/aux4-repository drop values(db, repository)"
+          ],
+          "help": {
+            "text": "Drop an entire repository (table + schema + data); idempotent for a non-existent repository",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to drop the repository from",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to drop",
+                "arg": true
+              }
+            ]
+          }
+        },
+        {
           "name": "delete",
           "execute": [
             "${packageDir}/aux4-repository delete values(db, repository) value(id*)"
