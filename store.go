@@ -27,6 +27,8 @@ type Store interface {
 	Upsert(repo, id, data, metadata string) error
 	// Query runs a read query with bound parameters and returns the rows.
 	Query(query string, args ...any) ([]Row, error)
+	// QueryInt runs a query returning a single integer (e.g. count(*)).
+	QueryInt(query string, args ...any) (int64, error)
 	// Exec runs a write query with bound parameters and returns rows affected.
 	Exec(query string, args ...any) (int64, error)
 	// ListTables returns the user tables (excluding sqlite_* internal tables) in

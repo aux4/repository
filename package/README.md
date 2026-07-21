@@ -172,6 +172,48 @@ Projection is applied **in the tool after reading**, never in SQL — no field n
 aux4 repository find users --expr "age > 21" --select "first_name, age" --sort "age desc" --limit 10
 ```
 
+## Counting records (count)
+
+`count` returns how many records match — without returning the records themselves. It accepts the same `--expr`, `--access`, `--all`, and `--includeExpired` as `find`, and applies the same access/ttl visibility. The output is a bare integer on one line.
+
+```bash
+# total visible records
+aux4 repository count users
+
+# how many match a filter (including access-restricted records)
+aux4 repository count users --expr "age >= 18" --all true
+```
+
+A count of `0` is a valid answer and exits 0 — unlike `read`/`find`, `count` does not use the empty-result exit-4 convention. There is no `--sort`/`--select`/`--limit`/`--offset` (a count is always the total of the matching set).
+
+## Updating records in place (patch and touch)
+
+`write` replaces a whole record (and creates it if missing). When you want to amend an existing record instead, use `patch` (data) or `touch` (ttl/access). Both are **update-only** — they error if the id does not exist — and both print the id on success.
+
+**`patch`** shallow-merges a JSON payload into the record's `data`: listed keys set/override (existing keys keep their position, new keys are appended in payload order), unmentioned keys are preserved, and any `id` in the payload is ignored. `metadata` and `created_at` are untouched; `updated_at` is bumped.
+
+```bash
+# add/override only these fields; everything else in the record is preserved
+aux4 repository patch users --id u1 --data '{"age":31,"city":"NYC"}'
+
+# payload can come from stdin
+echo '{"verified":true}' | aux4 repository patch users --id u1
+```
+
+**Note:** `patch` is a shallow top-level merge — nested objects are replaced, not deep-merged — and it cannot delete a field. These are intentional limitations of this version.
+
+**`touch`** updates only metadata without changing `data`: `--ttl <seconds>` sets a new expiry epoch (`now + seconds`) and `--access "a,b"` replaces the access labels. At least one of `--ttl`/`--access` must be given.
+
+```bash
+# extend a session's ttl
+aux4 repository touch sessions --id s1 --ttl 3600
+
+# re-scope a document to new access labels
+aux4 repository touch docs --id doc1 --access "team-a,team-c"
+```
+
+**Note:** `touch` only *sets* ttl/access; it cannot clear them (making a record permanent or public again is out of scope for this version).
+
 ## Expiring records with a time-to-live (TTL)
 
 Records can be given an expiry using the `--ttl <seconds>` flag on `write`. The value is a duration in seconds; it is converted to an absolute expiry epoch using the database clock and merged into the record metadata under the `ttl` key. Any user-supplied `--metadata` is preserved:

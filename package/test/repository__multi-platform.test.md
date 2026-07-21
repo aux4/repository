@@ -85,15 +85,15 @@ aux4/repository/aux4-repository.exe
 
 ### the repository profile exposes exactly the Go-backed commands
 
-The packaged manifest carries only the seven public commands routed to the
-binary — the retired `visibility-clause` and `translate-where` helpers are gone.
+The packaged manifest carries only the public commands routed to the binary —
+the retired `visibility-clause` and `translate-where` helpers are gone.
 
 ```execute
 rm -rf _mp/x_man && mkdir -p _mp/x_man && unzip -oq _mp/out/linux_amd64_aux4_repository_1.3.0.zip -d _mp/x_man && jq -r '[.profiles[] | select(.name=="repository").commands[].name] | join(",")' _mp/x_man/aux4/repository/.aux4
 ```
 
 ```expect
-init,write,read,find,delete,truncate,clean
+init,write,read,find,count,patch,touch,delete,truncate,clean
 ```
 
 ### the retired translate-where profile is absent

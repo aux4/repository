@@ -40,6 +40,12 @@ func (s *sqlStore) Query(query string, args ...any) ([]Row, error) {
 	return out, rows.Err()
 }
 
+func (s *sqlStore) QueryInt(query string, args ...any) (int64, error) {
+	var n int64
+	err := s.db.QueryRow(query, args...).Scan(&n)
+	return n, err
+}
+
 func (s *sqlStore) Exec(query string, args ...any) (int64, error) {
 	res, err := s.db.Exec(query, args...)
 	if err != nil {

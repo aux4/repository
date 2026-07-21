@@ -235,6 +235,114 @@
           }
         },
         {
+          "name": "count",
+          "execute": [
+            "${packageDir}/aux4-repository count values(db, repository, expr, access, all, includeExpired)"
+          ],
+          "help": {
+            "text": "Count records in the aux4 repository, optionally filtered by a SQL expression",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to count in",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to count in",
+                "arg": true
+              },
+              {
+                "name": "expr",
+                "text": "Optional SQL expression for filtering (same syntax as find). Empty counts all visible records.",
+                "default": ""
+              },
+              {
+                "name": "access",
+                "text": "Comma-separated access labels held by the caller. Public records are always counted; restricted records are counted only when one of their labels matches. With no --access, only public records are counted.",
+                "default": ""
+              },
+              {
+                "name": "all",
+                "text": "Bypass access filtering and count every record regardless of its access labels. Defaults to false.",
+                "default": "false"
+              },
+              {
+                "name": "includeExpired",
+                "text": "Include records whose ttl has expired (hidden by default).",
+                "default": "false"
+              }
+            ]
+          }
+        },
+        {
+          "name": "patch",
+          "execute": [
+            "stdin:${packageDir}/aux4-repository patch values(db, repository, id, data)"
+          ],
+          "help": {
+            "text": "Merge-update an existing record's data (shallow top-level merge; update-only, not an upsert)",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to patch in",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to patch in",
+                "arg": true
+              },
+              {
+                "name": "id",
+                "text": "The id of the existing record to patch (required). Patch errors if the id does not exist.",
+                "default": ""
+              },
+              {
+                "name": "data",
+                "text": "JSON patch payload (or piped via stdin). Top-level keys set/override the record's data; keys not mentioned are preserved. Any id field in the payload is ignored.",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "touch",
+          "execute": [
+            "${packageDir}/aux4-repository touch values(db, repository, id, ttl, access)"
+          ],
+          "help": {
+            "text": "Update an existing record's ttl and/or access metadata without changing its data (update-only)",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to touch in",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to touch in",
+                "arg": true
+              },
+              {
+                "name": "id",
+                "text": "The id of the existing record to touch (required). Touch errors if the id does not exist.",
+                "default": ""
+              },
+              {
+                "name": "ttl",
+                "text": "New time-to-live in seconds; stored as an absolute expiry epoch under metadata.ttl. At least one of --ttl / --access must be provided.",
+                "default": ""
+              },
+              {
+                "name": "access",
+                "text": "New comma-separated access labels; replaces metadata.access. At least one of --ttl / --access must be provided.",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
           "name": "delete",
           "execute": [
             "${packageDir}/aux4-repository delete values(db, repository) value(id*)"

@@ -107,6 +107,44 @@ if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"u1","name":"John"},{"id":"u2",
 [{"id":"u1","name":"John"},{"id":"u2","name":"Jane"}]
 ```
 
+### count over the remote backend
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then printf '2\n'; else aux4 repository count --db "$TURSO_TEST_URL" users --all true --includeExpired true; fi
+```
+
+```expect:partial
+2
+```
+
+### patch merge-updates a record over the remote backend
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then printf 'u1\n'; else aux4 repository patch --db "$TURSO_TEST_URL" users --id u1 --data '{"patched":true}'; fi
+```
+
+```expect:partial
+u1
+```
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"u1","name":"John","age":30,"total":45.50,"patched":true}]'; else aux4 repository read --db "$TURSO_TEST_URL" users --id u1 --all true; fi
+```
+
+```expect:partial
+[{"id":"u1","name":"John","age":30,"total":45.50,"patched":true}]
+```
+
+### touch updates ttl metadata over the remote backend
+
+```execute
+if [ -z "$TURSO_TEST_URL" ]; then printf 'u1\n'; else aux4 repository touch --db "$TURSO_TEST_URL" users --id u1 --ttl 3600; fi
+```
+
+```expect:partial
+u1
+```
+
 ### find rejects SQL comment / terminator sequences over the remote backend
 
 ```execute
