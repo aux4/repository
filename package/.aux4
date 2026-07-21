@@ -8,6 +8,9 @@
     "database",
     "repository"
   ],
+  "dependencies": [
+    "aux4/render"
+  ],
   "profiles": [
     {
       "name": "main",
@@ -97,8 +100,11 @@
         {
           "name": "read",
           "execute": [
-            "${packageDir}/aux4-repository read values(db, repository, id, raw, includeExpired, access, all, sort, limit, offset)"
+            "nout:${packageDir}/aux4-repository read values(db, repository, id, raw, includeExpired, access, all, sort, limit, offset)"
           ],
+          "render": {
+            "tty": "aux4 render table"
+          },
           "help": {
             "text": "Read from the aux4 repository",
             "variables": [
@@ -158,8 +164,11 @@
         {
           "name": "find",
           "execute": [
-            "${packageDir}/aux4-repository find values(db, repository, expr, raw, includeExpired, access, all, sort, limit, offset)"
+            "nout:${packageDir}/aux4-repository find values(db, repository, expr, raw, includeExpired, access, all, sort, limit, offset)"
           ],
+          "render": {
+            "tty": "aux4 render table"
+          },
           "help": {
             "text": "Find in the aux4 repository using SQL expressions",
             "variables": [

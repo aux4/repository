@@ -6,6 +6,8 @@ Use find when you need to filter records by content rather than by id. It comple
 
 **Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database (auth token read from the `TURSO_AUTH_TOKEN` environment variable). Behavior is identical on both backends.
 
+**Output rendering.** On an interactive terminal the JSON result is rendered as a table for readability; when the output is piped, redirected, or captured by another command it stays raw JSON, unchanged. Pass `--render none` to force raw JSON even on a terminal.
+
 By default, records whose metadata `ttl` (an absolute expiry epoch, set via `write --ttl`) is in the past are excluded from the results, even when they match `--expr`. Records with no `ttl` are always eligible. Pass `--includeExpired true` to disable this filter and include expired records in the matches.
 
 ### Data restriction

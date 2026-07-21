@@ -76,6 +76,17 @@ For full command docs see [aux4 repository write](./commands/repository/write).
 
 The read command returns stored records as JSON. By default it reads all rows; use --id to select a single record. Each returned object contains an id and the fields from the stored JSON. With `--raw true`, each object also gains a `__metadata` object that merges the stored metadata with createdAt and updatedAt timestamps.
 
+**Table vs. JSON output.** On an interactive terminal, `read` and `find` render their results as a table for readability. When the output is piped, redirected, or captured by another aux4 command it stays raw JSON, unchanged — so scripts and pipelines always receive JSON. Pass `--render none` to force raw JSON even on a terminal.
+
+```bash
+# table on a terminal, raw JSON when piped into jq
+aux4 repository read users
+aux4 repository read users | jq '.[].name'
+
+# force raw JSON on a terminal
+aux4 repository find users --expr "age > 30" --render none
+```
+
 Example — write two records then read all:
 
 ```bash
