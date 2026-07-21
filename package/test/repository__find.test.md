@@ -35,14 +35,7 @@ aux4 repository find users --expr "name = 'John'"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "user1",
-    "name": "John",
-    "age": 30,
-    "city": "NYC"
-  }
-]
+[{"id":"user1","name":"John","age":30,"city":"NYC"}]
 ```
 
 ### Find records by numeric comparison
@@ -54,20 +47,7 @@ aux4 repository find users --expr "age > 28"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "user1",
-    "name": "John",
-    "age": 30,
-    "city": "NYC"
-  },
-  {
-    "id": "user3",
-    "name": "Bob",
-    "age": 35,
-    "city": "NYC"
-  }
-]
+[{"id":"user1","name":"John","age":30,"city":"NYC"},{"id":"user3","name":"Bob","age":35,"city":"NYC"}]
 ```
 
 ### Find records using LIKE operator
@@ -79,20 +59,7 @@ aux4 repository find users --expr "name like '%o%'"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "user1",
-    "name": "John",
-    "age": 30,
-    "city": "NYC"
-  },
-  {
-    "id": "user3",
-    "name": "Bob",
-    "age": 35,
-    "city": "NYC"
-  }
-]
+[{"id":"user1","name":"John","age":30,"city":"NYC"},{"id":"user3","name":"Bob","age":35,"city":"NYC"}]
 ```
 
 ### Find records using compound expressions
@@ -104,14 +71,7 @@ aux4 repository find users --expr "city = 'NYC' and age < 35"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "user1",
-    "name": "John",
-    "age": 30,
-    "city": "NYC"
-  }
-]
+[{"id":"user1","name":"John","age":30,"city":"NYC"}]
 ```
 
 ### Find records with inequality operators
@@ -123,20 +83,7 @@ aux4 repository find users --expr "age != 30"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "user2",
-    "name": "Jane",
-    "age": 25,
-    "city": "LA"
-  },
-  {
-    "id": "user3",
-    "name": "Bob",
-    "age": 35,
-    "city": "NYC"
-  }
-]
+[{"id":"user2","name":"Jane","age":25,"city":"LA"},{"id":"user3","name":"Bob","age":35,"city":"NYC"}]
 ```
 
 ### Find records with complex nested JSON data
@@ -153,17 +100,7 @@ aux4 repository find orders --expr "total > 30"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "order2",
-    "customer": {
-      "name": "Bob",
-      "email": "bob@example.com"
-    },
-    "total": 45.50,
-    "status": "completed"
-  }
-]
+[{"id":"order2","customer":{"name":"Bob","email":"bob@example.com"},"total":45.50,"status":"completed"}]
 ```
 
 ### Find with no matching results returns empty array
@@ -192,15 +129,7 @@ aux4 repository find products --expr "inStock = 1"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod1",
-    "name": "Widget",
-    "price": 19.99,
-    "inStock": true,
-    "featured": false
-  }
-]
+[{"id":"prod1","name":"Widget","price":19.99,"inStock":true,"featured":false}]
 ```
 
 ### Find hides expired records by default
@@ -217,12 +146,7 @@ aux4 repository find ttl_find --expr "name like '%'"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "live",
-    "name": "Live"
-  }
-]
+[{"id":"live","name":"Live"}]
 ```
 
 ### Find --includeExpired shows expired records
@@ -234,14 +158,5 @@ aux4 repository find ttl_find --expr "name like '%'" --includeExpired true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "live",
-    "name": "Live"
-  },
-  {
-    "id": "dead",
-    "name": "Dead"
-  }
-]
+[{"id":"live","name":"Live"},{"id":"dead","name":"Dead"}]
 ```

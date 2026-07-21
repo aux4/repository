@@ -41,50 +41,21 @@ u2
 ### read all preserves number literals and record order
 
 ```execute
-if [ -z "$TURSO_TEST_URL" ]; then printf '[\n  {\n    "id": "u1",\n    "name": "John",\n    "age": 30,\n    "total": 45.50\n  },\n  {\n    "id": "u2",\n    "name": "Jane",\n    "age": 25\n  }\n]\n'; else aux4 repository read --db "$TURSO_TEST_URL" users --all true; fi
+if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"u1","name":"John","age":30,"total":45.50},{"id":"u2","name":"Jane","age":25}]'; else aux4 repository read --db "$TURSO_TEST_URL" users --all true; fi
 ```
 
 ```expect:partial
-[
-  {
-    "id": "u1",
-    "name": "John",
-    "age": 30,
-    "total": 45.50
-  },
-  {
-    "id": "u2",
-    "name": "Jane",
-    "age": 25
-  }
-]
+[{"id":"u1","name":"John","age":30,"total":45.50},{"id":"u2","name":"Jane","age":25}]
 ```
 
 ### read --raw returns timestamps in the SQLite space form
 
 ```execute
-if [ -z "$TURSO_TEST_URL" ]; then printf '[\n  {\n    "id": "u1",\n    "name": "John",\n    "age": 30,\n    "total": 45.50,\n    "__metadata": {\n      "role": "admin",\n      "ttl": 9999999999,\n      "access": [\n        "a",\n        "b"\n      ],\n      "createdAt": "2026-01-01 00:00:00",\n      "updatedAt": "2026-01-01 00:00:00"\n    }\n  }\n]\n'; else aux4 repository read --db "$TURSO_TEST_URL" users --id u1 --raw true --all true; fi
+if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"u1","name":"John","age":30,"total":45.50,"__metadata":{"role":"admin","ttl":9999999999,"access":["a","b"],"createdAt":"2026-01-01 00:00:00","updatedAt":"2026-01-01 00:00:00"}}]'; else aux4 repository read --db "$TURSO_TEST_URL" users --id u1 --raw true --all true; fi
 ```
 
 ```expect:partial
-[
-  {
-    "id": "u1",
-    "name": "John",
-    "age": 30,
-    "total": 45.50,
-    "__metadata": {
-      "role": "admin",
-      "ttl": *?,
-      "access": [
-        "a",
-        "b"
-      ],
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"u1","name":"John","age":30,"total":45.50,"__metadata":{"role":"admin","ttl":*?,"access":["a","b"],"createdAt":"*?","updatedAt":"*?"}}]
 ```
 
 ### find applies the expression and the access filter
@@ -93,34 +64,21 @@ Without a matching access label, the restricted `u1` record stays hidden and
 only the public `u2` record matches the expression.
 
 ```execute
-if [ -z "$TURSO_TEST_URL" ]; then printf '[\n  {\n    "id": "u2",\n    "name": "Jane",\n    "age": 25\n  }\n]\n'; else aux4 repository find --db "$TURSO_TEST_URL" users --expr "age > 0"; fi
+if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"u2","name":"Jane","age":25}]'; else aux4 repository find --db "$TURSO_TEST_URL" users --expr "age > 0"; fi
 ```
 
 ```expect:partial
-[
-  {
-    "id": "u2",
-    "name": "Jane",
-    "age": 25
-  }
-]
+[{"id":"u2","name":"Jane","age":25}]
 ```
 
 ### find with a matching label reveals the restricted record
 
 ```execute
-if [ -z "$TURSO_TEST_URL" ]; then printf '[\n  {\n    "id": "u1",\n    "name": "John",\n    "age": 30,\n    "total": 45.50\n  }\n]\n'; else aux4 repository find --db "$TURSO_TEST_URL" users --expr "age > 26" --access a; fi
+if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"u1","name":"John","age":30,"total":45.50}]'; else aux4 repository find --db "$TURSO_TEST_URL" users --expr "age > 26" --access a; fi
 ```
 
 ```expect:partial
-[
-  {
-    "id": "u1",
-    "name": "John",
-    "age": 30,
-    "total": 45.50
-  }
-]
+[{"id":"u1","name":"John","age":30,"total":45.50}]
 ```
 
 ### read with --sort and --limit over the remote backend
@@ -129,18 +87,11 @@ Ordering and pagination work identically on the remote backend: sorting by `age`
 descending and limiting to one record returns the oldest user.
 
 ```execute
-if [ -z "$TURSO_TEST_URL" ]; then printf '[\n  {\n    "id": "u1",\n    "name": "John",\n    "age": 30,\n    "total": 45.50\n  }\n]\n'; else aux4 repository read --db "$TURSO_TEST_URL" users --all true --sort "age desc" --limit 1; fi
+if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"u1","name":"John","age":30,"total":45.50}]'; else aux4 repository read --db "$TURSO_TEST_URL" users --all true --sort "age desc" --limit 1; fi
 ```
 
 ```expect:partial
-[
-  {
-    "id": "u1",
-    "name": "John",
-    "age": 30,
-    "total": 45.50
-  }
-]
+[{"id":"u1","name":"John","age":30,"total":45.50}]
 ```
 
 ### find rejects SQL comment / terminator sequences over the remote backend
@@ -160,17 +111,11 @@ if [ -z "$TURSO_TEST_URL" ]; then echo -n ""; else aux4 repository delete --db "
 ```
 
 ```execute
-if [ -z "$TURSO_TEST_URL" ]; then printf '[\n  {\n    "id": "u2",\n    "name": "Jane",\n    "age": 25\n  }\n]\n'; else aux4 repository read --db "$TURSO_TEST_URL" users --all true; fi
+if [ -z "$TURSO_TEST_URL" ]; then printf '[{"id":"u2","name":"Jane","age":25}]'; else aux4 repository read --db "$TURSO_TEST_URL" users --all true; fi
 ```
 
 ```expect:partial
-[
-  {
-    "id": "u2",
-    "name": "Jane",
-    "age": 25
-  }
-]
+[{"id":"u2","name":"Jane","age":25}]
 ```
 
 ### truncate then read returns an empty result

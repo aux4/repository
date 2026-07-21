@@ -32,7 +32,7 @@ func outputRows(rows []Row, raw bool) error {
 		objs = append(objs, obj)
 	}
 
-	out, err := prettyArray(objs)
+	out, err := compactArray(objs)
 	if err != nil {
 		return err
 	}

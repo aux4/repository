@@ -99,22 +99,19 @@ func emitObject(kvs []kv) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// prettyArray joins compact object encodings into a pretty-printed JSON array
-// using the same 2-space indentation as the jq pipeline it replaces.
-func prettyArray(objs [][]byte) ([]byte, error) {
-	var compact bytes.Buffer
-	compact.WriteByte('[')
+// compactArray joins compact object encodings into a single-line JSON array
+// (like `jq -c`): no indentation, no newlines between elements. Each object is
+// already byte-preserving (number literals and key order intact), so this simply
+// wraps them in brackets without re-serializing.
+func compactArray(objs [][]byte) ([]byte, error) {
+	var out bytes.Buffer
+	out.WriteByte('[')
 	for i, o := range objs {
 		if i > 0 {
-			compact.WriteByte(',')
+			out.WriteByte(',')
 		}
-		compact.Write(o)
+		out.Write(o)
 	}
-	compact.WriteByte(']')
-
-	var out bytes.Buffer
-	if err := json.Indent(&out, compact.Bytes(), "", "  "); err != nil {
-		return nil, err
-	}
+	out.WriteByte(']')
 	return out.Bytes(), nil
 }

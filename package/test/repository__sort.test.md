@@ -28,20 +28,7 @@ aux4 repository read nums --sort "n"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "b",
-    "n": 25
-  },
-  {
-    "id": "a",
-    "n": 30
-  },
-  {
-    "id": "c",
-    "n": 35
-  }
-]
+[{"id":"b","n":25},{"id":"a","n":30},{"id":"c","n":35}]
 ```
 
 ### sorts descending with an explicit direction
@@ -51,20 +38,7 @@ aux4 repository read nums --sort "n desc"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "c",
-    "n": 35
-  },
-  {
-    "id": "a",
-    "n": 30
-  },
-  {
-    "id": "b",
-    "n": 25
-  }
-]
+[{"id":"c","n":35},{"id":"a","n":30},{"id":"b","n":25}]
 ```
 
 ## read ordering by multiple fields
@@ -87,23 +61,7 @@ aux4 repository read people --sort "age desc, name"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "p2",
-    "age": 30,
-    "name": "Alice"
-  },
-  {
-    "id": "p1",
-    "age": 30,
-    "name": "Bob"
-  },
-  {
-    "id": "p3",
-    "age": 25,
-    "name": "Zoe"
-  }
-]
+[{"id":"p2","age":30,"name":"Alice"},{"id":"p1","age":30,"name":"Bob"},{"id":"p3","age":25,"name":"Zoe"}]
 ```
 
 ## read ordering by a nested field
@@ -126,26 +84,7 @@ aux4 repository read dev --sort "specs.rank"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "d2",
-    "specs": {
-      "rank": 1
-    }
-  },
-  {
-    "id": "d1",
-    "specs": {
-      "rank": 2
-    }
-  },
-  {
-    "id": "d3",
-    "specs": {
-      "rank": 3
-    }
-  }
-]
+[{"id":"d2","specs":{"rank":1}},{"id":"d1","specs":{"rank":2}},{"id":"d3","specs":{"rank":3}}]
 ```
 
 ## read ordering by special fields
@@ -168,20 +107,7 @@ aux4 repository read ord --sort "id"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "a",
-    "v": 1
-  },
-  {
-    "id": "b",
-    "v": 2
-  },
-  {
-    "id": "c",
-    "v": 3
-  }
-]
+[{"id":"a","v":1},{"id":"b","v":2},{"id":"c","v":3}]
 ```
 
 ## read ordering by createdAt
@@ -204,16 +130,7 @@ aux4 repository read ev --sort "createdAt desc"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "second",
-    "v": 2
-  },
-  {
-    "id": "first",
-    "v": 1
-  }
-]
+[{"id":"second","v":2},{"id":"first","v":1}]
 ```
 
 ## read ordering by updatedAt
@@ -237,16 +154,7 @@ aux4 repository read up --sort "updatedAt desc"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "x",
-    "v": 1
-  },
-  {
-    "id": "y",
-    "v": 2
-  }
-]
+[{"id":"x","v":1},{"id":"y","v":2}]
 ```
 
 ## read pagination
@@ -271,16 +179,7 @@ aux4 repository read pg --sort "n" --limit 2
 ```
 
 ```expect:partial
-[
-  {
-    "id": "r1",
-    "n": 1
-  },
-  {
-    "id": "r2",
-    "n": 2
-  }
-]
+[{"id":"r1","n":1},{"id":"r2","n":2}]
 ```
 
 ### --limit with --offset paginates
@@ -290,16 +189,7 @@ aux4 repository read pg --sort "n" --limit 2 --offset 2
 ```
 
 ```expect:partial
-[
-  {
-    "id": "r3",
-    "n": 3
-  },
-  {
-    "id": "r4",
-    "n": 4
-  }
-]
+[{"id":"r3","n":3},{"id":"r4","n":4}]
 ```
 
 ### --offset without --limit skips leading records
@@ -309,16 +199,7 @@ aux4 repository read pg --sort "n" --offset 3
 ```
 
 ```expect:partial
-[
-  {
-    "id": "r4",
-    "n": 4
-  },
-  {
-    "id": "r5",
-    "n": 5
-  }
-]
+[{"id":"r4","n":4},{"id":"r5","n":5}]
 ```
 
 ## find ordering and pagination
@@ -341,18 +222,7 @@ aux4 repository find items --expr "cat = 'a'" --sort "n"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "i2",
-    "cat": "a",
-    "n": 1
-  },
-  {
-    "id": "i1",
-    "cat": "a",
-    "n": 3
-  }
-]
+[{"id":"i2","cat":"a","n":1},{"id":"i1","cat":"a","n":3}]
 ```
 
 ### applies --sort and --limit together
@@ -362,18 +232,7 @@ aux4 repository find items --expr "n > 0" --sort "n" --limit 2
 ```
 
 ```expect:partial
-[
-  {
-    "id": "i2",
-    "cat": "a",
-    "n": 1
-  },
-  {
-    "id": "i3",
-    "cat": "b",
-    "n": 2
-  }
-]
+[{"id":"i2","cat":"a","n":1},{"id":"i3","cat":"b","n":2}]
 ```
 
 ### applies --sort desc with --offset
@@ -383,18 +242,7 @@ aux4 repository find items --expr "n > 0" --sort "n desc" --offset 1
 ```
 
 ```expect:partial
-[
-  {
-    "id": "i3",
-    "cat": "b",
-    "n": 2
-  },
-  {
-    "id": "i2",
-    "cat": "a",
-    "n": 1
-  }
-]
+[{"id":"i3","cat":"b","n":2},{"id":"i2","cat":"a","n":1}]
 ```
 
 ## ordering composes with access restriction
@@ -417,20 +265,7 @@ aux4 repository find docs --expr "n > 0" --access secret --sort "n desc"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "s2",
-    "n": 3
-  },
-  {
-    "id": "s1",
-    "n": 2
-  },
-  {
-    "id": "pub",
-    "n": 1
-  }
-]
+[{"id":"s2","n":3},{"id":"s1","n":2},{"id":"pub","n":1}]
 ```
 
 ### read with --access, --sort and --limit
@@ -440,16 +275,7 @@ aux4 repository read docs --access secret --sort "n" --limit 2
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "n": 1
-  },
-  {
-    "id": "s1",
-    "n": 2
-  }
-]
+[{"id":"pub","n":1},{"id":"s1","n":2}]
 ```
 
 ## rejection cases

@@ -29,62 +29,7 @@ aux4 repository find products --expr "price <= 250"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod2",
-    "name": "Gaming Mouse",
-    "price": 79.99,
-    "category": "electronics",
-    "inStock": false,
-    "rating": 4.5,
-    "tags": [
-      "gaming",
-      "mouse",
-      "rgb"
-    ],
-    "specs": {
-      "dpi": "16000",
-      "buttons": 8,
-      "wireless": true
-    }
-  },
-  {
-    "id": "prod3",
-    "name": "Office Chair",
-    "price": 249.50,
-    "category": "furniture",
-    "inStock": true,
-    "rating": 4.2,
-    "tags": [
-      "chair",
-      "ergonomic",
-      "office"
-    ],
-    "specs": {
-      "material": "leather",
-      "adjustable": true,
-      "warranty": "5 years"
-    }
-  },
-  {
-    "id": "prod4",
-    "name": "Wireless Headphones",
-    "price": 199.00,
-    "category": "electronics",
-    "inStock": true,
-    "rating": 4.7,
-    "tags": [
-      "audio",
-      "wireless",
-      "noise-canceling"
-    ],
-    "specs": {
-      "battery": "30 hours",
-      "noise_reduction": true,
-      "color": "black"
-    }
-  }
-]
+[{"id":"prod2","name":"Gaming Mouse","price":79.99,"category":"electronics","inStock":false,"rating":4.5,"tags":["gaming","mouse","rgb"],"specs":{"dpi":"16000","buttons":8,"wireless":true}},{"id":"prod3","name":"Office Chair","price":249.50,"category":"furniture","inStock":true,"rating":4.2,"tags":["chair","ergonomic","office"],"specs":{"material":"leather","adjustable":true,"warranty":"5 years"}},{"id":"prod4","name":"Wireless Headphones","price":199.00,"category":"electronics","inStock":true,"rating":4.7,"tags":["audio","wireless","noise-canceling"],"specs":{"battery":"30 hours","noise_reduction":true,"color":"black"}}]
 ```
 
 ### Find using greater than or equal operator
@@ -96,62 +41,7 @@ aux4 repository find products --expr "rating >= 4.5"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod1",
-    "name": "Laptop Pro",
-    "price": 1299.99,
-    "category": "electronics",
-    "inStock": true,
-    "rating": 4.8,
-    "tags": [
-      "computer",
-      "portable",
-      "work"
-    ],
-    "specs": {
-      "cpu": "Intel i7",
-      "ram": "16GB",
-      "storage": "512GB SSD"
-    }
-  },
-  {
-    "id": "prod2",
-    "name": "Gaming Mouse",
-    "price": 79.99,
-    "category": "electronics",
-    "inStock": false,
-    "rating": 4.5,
-    "tags": [
-      "gaming",
-      "mouse",
-      "rgb"
-    ],
-    "specs": {
-      "dpi": "16000",
-      "buttons": 8,
-      "wireless": true
-    }
-  },
-  {
-    "id": "prod4",
-    "name": "Wireless Headphones",
-    "price": 199.00,
-    "category": "electronics",
-    "inStock": true,
-    "rating": 4.7,
-    "tags": [
-      "audio",
-      "wireless",
-      "noise-canceling"
-    ],
-    "specs": {
-      "battery": "30 hours",
-      "noise_reduction": true,
-      "color": "black"
-    }
-  }
-]
+[{"id":"prod1","name":"Laptop Pro","price":1299.99,"category":"electronics","inStock":true,"rating":4.8,"tags":["computer","portable","work"],"specs":{"cpu":"Intel i7","ram":"16GB","storage":"512GB SSD"}},{"id":"prod2","name":"Gaming Mouse","price":79.99,"category":"electronics","inStock":false,"rating":4.5,"tags":["gaming","mouse","rgb"],"specs":{"dpi":"16000","buttons":8,"wireless":true}},{"id":"prod4","name":"Wireless Headphones","price":199.00,"category":"electronics","inStock":true,"rating":4.7,"tags":["audio","wireless","noise-canceling"],"specs":{"battery":"30 hours","noise_reduction":true,"color":"black"}}]
 ```
 
 ### Find using not equal operator variants
@@ -163,44 +53,7 @@ aux4 repository find products --expr "category != 'electronics'"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod3",
-    "name": "Office Chair",
-    "price": 249.50,
-    "category": "furniture",
-    "inStock": true,
-    "rating": 4.2,
-    "tags": [
-      "chair",
-      "ergonomic",
-      "office"
-    ],
-    "specs": {
-      "material": "leather",
-      "adjustable": true,
-      "warranty": "5 years"
-    }
-  },
-  {
-    "id": "prod5",
-    "name": "Standing Desk",
-    "price": 549.00,
-    "category": "furniture",
-    "inStock": false,
-    "rating": 4.3,
-    "tags": [
-      "desk",
-      "standing",
-      "adjustable"
-    ],
-    "specs": {
-      "height_range": "28-48 inches",
-      "material": "bamboo",
-      "weight_capacity": "150 lbs"
-    }
-  }
-]
+[{"id":"prod3","name":"Office Chair","price":249.50,"category":"furniture","inStock":true,"rating":4.2,"tags":["chair","ergonomic","office"],"specs":{"material":"leather","adjustable":true,"warranty":"5 years"}},{"id":"prod5","name":"Standing Desk","price":549.00,"category":"furniture","inStock":false,"rating":4.3,"tags":["desk","standing","adjustable"],"specs":{"height_range":"28-48 inches","material":"bamboo","weight_capacity":"150 lbs"}}]
 ```
 
 ```execute
@@ -208,62 +61,7 @@ aux4 repository find products --expr "category <> 'furniture'"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod1",
-    "name": "Laptop Pro",
-    "price": 1299.99,
-    "category": "electronics",
-    "inStock": true,
-    "rating": 4.8,
-    "tags": [
-      "computer",
-      "portable",
-      "work"
-    ],
-    "specs": {
-      "cpu": "Intel i7",
-      "ram": "16GB",
-      "storage": "512GB SSD"
-    }
-  },
-  {
-    "id": "prod2",
-    "name": "Gaming Mouse",
-    "price": 79.99,
-    "category": "electronics",
-    "inStock": false,
-    "rating": 4.5,
-    "tags": [
-      "gaming",
-      "mouse",
-      "rgb"
-    ],
-    "specs": {
-      "dpi": "16000",
-      "buttons": 8,
-      "wireless": true
-    }
-  },
-  {
-    "id": "prod4",
-    "name": "Wireless Headphones",
-    "price": 199.00,
-    "category": "electronics",
-    "inStock": true,
-    "rating": 4.7,
-    "tags": [
-      "audio",
-      "wireless",
-      "noise-canceling"
-    ],
-    "specs": {
-      "battery": "30 hours",
-      "noise_reduction": true,
-      "color": "black"
-    }
-  }
-]
+[{"id":"prod1","name":"Laptop Pro","price":1299.99,"category":"electronics","inStock":true,"rating":4.8,"tags":["computer","portable","work"],"specs":{"cpu":"Intel i7","ram":"16GB","storage":"512GB SSD"}},{"id":"prod2","name":"Gaming Mouse","price":79.99,"category":"electronics","inStock":false,"rating":4.5,"tags":["gaming","mouse","rgb"],"specs":{"dpi":"16000","buttons":8,"wireless":true}},{"id":"prod4","name":"Wireless Headphones","price":199.00,"category":"electronics","inStock":true,"rating":4.7,"tags":["audio","wireless","noise-canceling"],"specs":{"battery":"30 hours","noise_reduction":true,"color":"black"}}]
 ```
 
 ### Find using NOT LIKE operator
@@ -275,80 +73,7 @@ aux4 repository find products --expr "name not like '%Gaming%'"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod1",
-    "name": "Laptop Pro",
-    "price": 1299.99,
-    "category": "electronics",
-    "inStock": true,
-    "rating": 4.8,
-    "tags": [
-      "computer",
-      "portable",
-      "work"
-    ],
-    "specs": {
-      "cpu": "Intel i7",
-      "ram": "16GB",
-      "storage": "512GB SSD"
-    }
-  },
-  {
-    "id": "prod3",
-    "name": "Office Chair",
-    "price": 249.50,
-    "category": "furniture",
-    "inStock": true,
-    "rating": 4.2,
-    "tags": [
-      "chair",
-      "ergonomic",
-      "office"
-    ],
-    "specs": {
-      "material": "leather",
-      "adjustable": true,
-      "warranty": "5 years"
-    }
-  },
-  {
-    "id": "prod4",
-    "name": "Wireless Headphones",
-    "price": 199.00,
-    "category": "electronics",
-    "inStock": true,
-    "rating": 4.7,
-    "tags": [
-      "audio",
-      "wireless",
-      "noise-canceling"
-    ],
-    "specs": {
-      "battery": "30 hours",
-      "noise_reduction": true,
-      "color": "black"
-    }
-  },
-  {
-    "id": "prod5",
-    "name": "Standing Desk",
-    "price": 549.00,
-    "category": "furniture",
-    "inStock": false,
-    "rating": 4.3,
-    "tags": [
-      "desk",
-      "standing",
-      "adjustable"
-    ],
-    "specs": {
-      "height_range": "28-48 inches",
-      "material": "bamboo",
-      "weight_capacity": "150 lbs"
-    }
-  }
-]
+[{"id":"prod1","name":"Laptop Pro","price":1299.99,"category":"electronics","inStock":true,"rating":4.8,"tags":["computer","portable","work"],"specs":{"cpu":"Intel i7","ram":"16GB","storage":"512GB SSD"}},{"id":"prod3","name":"Office Chair","price":249.50,"category":"furniture","inStock":true,"rating":4.2,"tags":["chair","ergonomic","office"],"specs":{"material":"leather","adjustable":true,"warranty":"5 years"}},{"id":"prod4","name":"Wireless Headphones","price":199.00,"category":"electronics","inStock":true,"rating":4.7,"tags":["audio","wireless","noise-canceling"],"specs":{"battery":"30 hours","noise_reduction":true,"color":"black"}},{"id":"prod5","name":"Standing Desk","price":549.00,"category":"furniture","inStock":false,"rating":4.3,"tags":["desk","standing","adjustable"],"specs":{"height_range":"28-48 inches","material":"bamboo","weight_capacity":"150 lbs"}}]
 ```
 
 ### Find using OR conditions
@@ -374,23 +99,7 @@ aux4 repository find simple_items --expr "category = 'electronics' or price < 25
 ```
 
 ```expect:partial
-[
-  {
-    "id": "item1",
-    "category": "electronics",
-    "price": 100
-  },
-  {
-    "id": "item2",
-    "category": "furniture",
-    "price": 200
-  },
-  {
-    "id": "item3",
-    "category": "electronics",
-    "price": 300
-  }
-]
+[{"id":"item1","category":"electronics","price":100},{"id":"item2","category":"furniture","price":200},{"id":"item3","category":"electronics","price":300}]
 ```
 
 ### Find using complex compound expressions with parentheses
@@ -402,32 +111,7 @@ aux4 repository find products --expr "(category = 'electronics' and inStock = 1)
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod1",
-    "name": "Laptop Pro",
-    **
-    "category": "electronics",
-    "inStock": true,
-    **
-  },
-  {
-    "id": "prod4",
-    "name": "Wireless Headphones",
-    **
-    "category": "electronics",
-    "inStock": true,
-    **
-  },
-  {
-    "id": "prod5",
-    "name": "Standing Desk",
-    **
-    "category": "furniture",
-    "inStock": false,
-    **
-  }
-]
+[{"id":"prod1","name":"Laptop Pro",*"category":"electronics","inStock":true,*},{"id":"prod4","name":"Wireless Headphones",*"category":"electronics","inStock":true,*},{"id":"prod5","name":"Standing Desk",*"category":"furniture","inStock":false,*}]
 ```
 
 ### Find using nested JSON path queries
@@ -449,15 +133,7 @@ aux4 repository find devices --expr "json_extract(data, '$.specs.wireless') = 1"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "device1",
-    "specs": {
-      "wireless": true
-    },
-    "name": "Mouse"
-  }
-]
+[{"id":"device1","specs":{"wireless":true},"name":"Mouse"}]
 ```
 
 ### Find using LIKE with multiple wildcards
@@ -483,20 +159,7 @@ aux4 repository find names --expr "name like '%a%' and name like '%e%'"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "n1",
-    "name": "Apple"
-  },
-  {
-    "id": "n2",
-    "name": "Orange"
-  },
-  {
-    "id": "n3",
-    "name": "Grape"
-  }
-]
+[{"id":"n1","name":"Apple"},{"id":"n2","name":"Orange"},{"id":"n3","name":"Grape"}]
 ```
 
 ### Find with case-insensitive LIKE patterns
@@ -508,18 +171,7 @@ aux4 repository find products --expr "name like '%GAMING%' or name like '%office
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod2",
-    "name": "Gaming Mouse",
-    **
-  },
-  {
-    "id": "prod3",
-    "name": "Office Chair",
-    **
-  }
-]
+[{"id":"prod2","name":"Gaming Mouse",*},{"id":"prod3","name":"Office Chair",*}]
 ```
 
 ### Find using numeric ranges
@@ -545,12 +197,7 @@ aux4 repository find prices --expr "price >= 100 and price <= 200"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "p2",
-    "price": 150
-  }
-]
+[{"id":"p2","price":150}]
 ```
 
 ### Find using boolean false values
@@ -562,22 +209,7 @@ aux4 repository find products --expr "inStock = 0"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod2",
-    "name": "Gaming Mouse",
-    **
-    "inStock": false,
-    **
-  },
-  {
-    "id": "prod5",
-    "name": "Standing Desk",
-    **
-    "inStock": false,
-    **
-  }
-]
+[{"id":"prod2","name":"Gaming Mouse",*"inStock":false,*},{"id":"prod5","name":"Standing Desk",*"inStock":false,*}]
 ```
 
 ### Find with multiple nested JSON conditions
@@ -589,26 +221,7 @@ aux4 repository find products --expr "json_extract(data, '$.specs.material') = '
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod3",
-    "name": "Office Chair",
-    **
-    "specs": {
-      "material": "leather",
-      **
-    }
-  },
-  {
-    "id": "prod4",
-    "name": "Wireless Headphones",
-    **
-    "specs": {
-      "battery": "30 hours",
-      **
-    }
-  }
-]
+[{"id":"prod3","name":"Office Chair",*"specs":{"material":"leather",*}},{"id":"prod4","name":"Wireless Headphones",*"specs":{"battery":"30 hours",*}}]
 ```
 
 ### Find using string length and pattern combinations
@@ -620,60 +233,5 @@ aux4 repository find products --expr "length(json_extract(data, '$.category')) >
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod1",
-    "name": "Laptop Pro",
-    "price": 1299.99,
-    "category": "electronics",
-    "inStock": true,
-    "rating": 4.8,
-    "tags": [
-      "computer",
-      "portable",
-      "work"
-    ],
-    "specs": {
-      "cpu": "Intel i7",
-      "ram": "16GB",
-      "storage": "512GB SSD"
-    }
-  },
-  {
-    "id": "prod2",
-    "name": "Gaming Mouse",
-    "price": 79.99,
-    "category": "electronics",
-    "inStock": false,
-    "rating": 4.5,
-    "tags": [
-      "gaming",
-      "mouse",
-      "rgb"
-    ],
-    "specs": {
-      "dpi": "16000",
-      "buttons": 8,
-      "wireless": true
-    }
-  },
-  {
-    "id": "prod4",
-    "name": "Wireless Headphones",
-    "price": 199.00,
-    "category": "electronics",
-    "inStock": true,
-    "rating": 4.7,
-    "tags": [
-      "audio",
-      "wireless",
-      "noise-canceling"
-    ],
-    "specs": {
-      "battery": "30 hours",
-      "noise_reduction": true,
-      "color": "black"
-    }
-  }
-]
+[{"id":"prod1","name":"Laptop Pro","price":1299.99,"category":"electronics","inStock":true,"rating":4.8,"tags":["computer","portable","work"],"specs":{"cpu":"Intel i7","ram":"16GB","storage":"512GB SSD"}},{"id":"prod2","name":"Gaming Mouse","price":79.99,"category":"electronics","inStock":false,"rating":4.5,"tags":["gaming","mouse","rgb"],"specs":{"dpi":"16000","buttons":8,"wireless":true}},{"id":"prod4","name":"Wireless Headphones","price":199.00,"category":"electronics","inStock":true,"rating":4.7,"tags":["audio","wireless","noise-canceling"],"specs":{"battery":"30 hours","noise_reduction":true,"color":"black"}}]
 ```

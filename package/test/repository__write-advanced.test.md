@@ -25,14 +25,7 @@ aux4 repository read users --id user_stdin
 ```
 
 ```expect:partial
-[
-  {
-    "id": "user_stdin",
-    "name": "Alice",
-    "email": "alice@example.com",
-    "age": 28
-  }
-]
+[{"id":"user_stdin","name":"Alice","email":"alice@example.com","age":28}]
 ```
 
 ### Write using STDIN with auto-generated UUID
@@ -64,39 +57,7 @@ aux4 repository read orders --id complex_order
 ```
 
 ```expect:partial
-[
-  {
-    "id": "complex_order",
-    "order": {
-      "id": "ORD-123",
-      "customer": {
-        "name": "Bob",
-        "address": {
-          "street": "456 Oak St",
-          "city": "LA",
-          "zip": "90210"
-        }
-      },
-      "items": [
-        {
-          "sku": "WIDGET-1",
-          "qty": 2,
-          "price": 15.99
-        },
-        {
-          "sku": "GADGET-1",
-          "qty": 1,
-          "price": 25.99
-        }
-      ],
-      "totals": {
-        "subtotal": 57.97,
-        "tax": 5.22,
-        "total": 63.19
-      }
-    }
-  }
-]
+[{"id":"complex_order","order":{"id":"ORD-123","customer":{"name":"Bob","address":{"street":"456 Oak St","city":"LA","zip":"90210"}},"items":[{"sku":"WIDGET-1","qty":2,"price":15.99},{"sku":"GADGET-1","qty":1,"price":25.99}],"totals":{"subtotal":57.97,"tax":5.22,"total":63.19}}}]
 ```
 
 ### Write using STDIN with metadata
@@ -116,14 +77,7 @@ aux4 repository read documents --id doc1
 ```
 
 ```expect:partial
-[
-  {
-    "id": "doc1",
-    "title": "Important Document",
-    "content": "This is a test document",
-    "version": "1.2"
-  }
-]
+[{"id":"doc1","title":"Important Document","content":"This is a test document","version":"1.2"}]
 ```
 
 ### Write using STDIN with JSON containing id field
@@ -143,13 +97,7 @@ aux4 repository read items --id from_json
 ```
 
 ```expect:partial
-[
-  {
-    "id": "from_json",
-    "name": "Test Item",
-    "description": "Item with id in JSON"
-  }
-]
+[{"id":"from_json","name":"Test Item","description":"Item with id in JSON"}]
 ```
 
 ### Write using STDIN with JSON containing id field but --id flag overrides
@@ -169,13 +117,7 @@ aux4 repository read tests --id override_id
 ```
 
 ```expect:partial
-[
-  {
-    "id": "override_id",
-    "name": "Override Test",
-    "value": 42
-  }
-]
+[{"id":"override_id","name":"Override Test","value":42}]
 ```
 
 ### Write using STDIN with arrays and objects
@@ -195,20 +137,7 @@ aux4 repository read special_data --id special_chars_unique
 ```
 
 ```expect:partial
-[
-  {
-    "id": "special_chars_unique",
-    "text": "Sample text",
-    "numbers": [
-      1,
-      2,
-      3
-    ],
-    "config": {
-      "enabled": true
-    }
-  }
-]
+[{"id":"special_chars_unique","text":"Sample text","numbers":[1,2,3],"config":{"enabled":true}}]
 ```
 
 ### Write large JSON payload via STDIN
@@ -228,50 +157,5 @@ aux4 repository read bulk --id bulk_data
 ```
 
 ```expect:partial
-[
-  {
-    "id": "bulk_data",
-    "users": [
-      {
-        "id": 1,
-        "name": "User1",
-        "email": "user1@test.com",
-        "roles": [
-          "admin",
-          "user"
-        ]
-      },
-      {
-        "id": 2,
-        "name": "User2",
-        "email": "user2@test.com",
-        "roles": [
-          "user"
-        ]
-      },
-      {
-        "id": 3,
-        "name": "User3",
-        "email": "user3@test.com",
-        "roles": [
-          "guest"
-        ]
-      }
-    ],
-    "metadata": {
-      "total": 3,
-      "created": "2024-01-01",
-      "source": "import"
-    },
-    "config": {
-      "theme": "dark",
-      "language": "en",
-      "notifications": {
-        "email": true,
-        "sms": false,
-        "push": true
-      }
-    }
-  }
-]
+[{"id":"bulk_data","users":[{"id":1,"name":"User1","email":"user1@test.com","roles":["admin","user"]},{"id":2,"name":"User2","email":"user2@test.com","roles":["user"]},{"id":3,"name":"User3","email":"user3@test.com","roles":["guest"]}],"metadata":{"total":3,"created":"2024-01-01","source":"import"},"config":{"theme":"dark","language":"en","notifications":{"email":true,"sms":false,"push":true}}}]
 ```

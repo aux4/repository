@@ -53,18 +53,7 @@ aux4 repository find items --db .smoke.db --expr "owner = 'alice'"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "item1",
-    "owner": "alice",
-    "label": "first"
-  },
-  {
-    "id": "item3",
-    "owner": "alice",
-    "label": "third"
-  }
-]
+[{"id":"item1","owner":"alice","label":"first"},{"id":"item3","owner":"alice","label":"third"}]
 ```
 
 ### find by owner excludes non-matching rows
@@ -76,11 +65,5 @@ aux4 repository find items --db .smoke.db --expr "owner = 'bob'"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "item2",
-    "owner": "bob",
-    "label": "second"
-  }
-]
+[{"id":"item2","owner":"bob","label":"second"}]
 ```

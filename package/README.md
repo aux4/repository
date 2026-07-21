@@ -76,7 +76,7 @@ For full command docs see [aux4 repository write](./commands/repository/write).
 
 The read command returns stored records as JSON. By default it reads all rows; use --id to select a single record. Each returned object contains an id and the fields from the stored JSON. With `--raw true`, each object also gains a `__metadata` object that merges the stored metadata with createdAt and updatedAt timestamps.
 
-**Table vs. JSON output.** On an interactive terminal, `read` and `find` render their results as a table for readability. When the output is piped, redirected, or captured by another aux4 command it stays raw JSON, unchanged — so scripts and pipelines always receive JSON. Pass `--render none` to force raw JSON even on a terminal.
+**Table vs. JSON output.** On an interactive terminal, `read` and `find` render their results as a table for readability. When the output is piped, redirected, or captured by another aux4 command it is emitted as **compact single-line JSON** (the whole array on one line, like `jq -c`) — so scripts and pipelines always receive JSON. Number literals (e.g. `45.50`) and key order are preserved. Pass `--render none` to force compact JSON even on a terminal.
 
 ```bash
 # table on a terminal, raw JSON when piped into jq
@@ -98,28 +98,7 @@ aux4 repository read users --raw true
 Example expected output (excerpt):
 
 ```json
-[
-  {
-    "id": "user1",
-    "name": "John",
-    "age": 30,
-    "__metadata": {
-      "role": "admin",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  },
-  {
-    "id": "user2",
-    "name": "Jane",
-    "age": 25,
-    "__metadata": {
-      "role": "user",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"user1","name":"John","age":30,"__metadata":{"role":"admin","createdAt":"2026-07-21 08:31:31","updatedAt":"2026-07-21 08:31:31"}},{"id":"user2","name":"Jane","age":25,"__metadata":{"role":"user","createdAt":"2026-07-21 08:31:31","updatedAt":"2026-07-21 08:31:31"}}]
 ```
 
 For full command docs see [aux4 repository read](./commands/repository/read).
@@ -137,19 +116,7 @@ aux4 repository find users --expr "name = 'John'" --raw true
 Example expected output (excerpt):
 
 ```json
-[
-  {
-    "id": "user1",
-    "name": "John",
-    "age": 30,
-    "city": "NYC",
-    "__metadata": {
-      "role": "admin",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"user1","name":"John","age":30,"city":"NYC","__metadata":{"role":"admin","createdAt":"2026-07-21 08:31:31","updatedAt":"2026-07-21 08:31:31"}}]
 ```
 
 For full command docs see [aux4 repository find](./commands/repository/find).
@@ -337,32 +304,7 @@ aux4 repository read orders --id order1 --raw true
 Expected output (excerpt):
 
 ```json
-[
-  {
-    "id": "order1",
-    "customer": {
-      "name": "Alice",
-      "email": "alice@example.com"
-    },
-    "items": [
-      {
-        "id": "item1",
-        "qty": 2
-      },
-      {
-        "id": "item2",
-        "qty": 1
-      }
-    ],
-    "total": 29.98,
-    "__metadata": {
-      "status": "pending",
-      "priority": "high",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"order1","customer":{"name":"Alice","email":"alice@example.com"},"items":[{"id":"item1","qty":2},{"id":"item2","qty":1}],"total":29.98,"__metadata":{"status":"pending","priority":"high","createdAt":"2026-07-21 08:31:31","updatedAt":"2026-07-21 08:31:31"}}]
 ```
 
 ### Find with numeric comparison
@@ -379,30 +321,7 @@ aux4 repository find users --expr "age > 28" --raw true
 Expected output (excerpt):
 
 ```json
-[
-  {
-    "id": "user1",
-    "name": "John",
-    "age": 30,
-    "city": "NYC",
-    "__metadata": {
-      "role": "admin",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  },
-  {
-    "id": "user3",
-    "name": "Bob",
-    "age": 35,
-    "city": "NYC",
-    "__metadata": {
-      "role": "user",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"user1","name":"John","age":30,"city":"NYC","__metadata":{"role":"admin","createdAt":"2026-07-21 08:31:31","updatedAt":"2026-07-21 08:31:31"}},{"id":"user3","name":"Bob","age":35,"city":"NYC","__metadata":{"role":"user","createdAt":"2026-07-21 08:31:31","updatedAt":"2026-07-21 08:31:31"}}]
 ```
 
 ### Delete multiple records and verify
@@ -421,18 +340,7 @@ aux4 repository read products --raw true
 Expected output (excerpt):
 
 ```json
-[
-  {
-    "id": "prod2",
-    "name": "Gadget",
-    "price": 29.99,
-    "__metadata": {
-      "category": "electronics",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"prod2","name":"Gadget","price":29.99,"__metadata":{"category":"electronics","createdAt":"2026-07-21 08:31:31","updatedAt":"2026-07-21 08:31:31"}}]
 ```
 
 ## Configuration

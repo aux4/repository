@@ -37,12 +37,7 @@ aux4 repository read users --includeExpired true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "u_live",
-    "n": "l"
-  }
-]
+[{"id":"u_live","n":"l"}]
 ```
 
 ### Clean reports zero when nothing has expired
@@ -58,14 +53,5 @@ aux4 repository read cache
 
 ```expect:partial
 cache: 0 expired records removed
-[
-  {
-    "id": "c1",
-    "n": 1
-  },
-  {
-    "id": "c2",
-    "n": 2
-  }
-]
+[{"id":"c1","n":1},{"id":"c2","n":2}]
 ```

@@ -25,18 +25,7 @@ aux4 repository read --db .render.db docs --sort id
 ```
 
 ```expect:partial
-[
-  {
-    "id": "rr1",
-    "name": "John",
-    "total": 45.50
-  },
-  {
-    "id": "rr2",
-    "name": "Jane",
-    "total": 10.00
-  }
-]
+[{"id":"rr1","name":"John","total":45.50},{"id":"rr2","name":"Jane","total":10.00}]
 ```
 
 ### read piped emits the JSON array exactly once
@@ -56,18 +45,7 @@ aux4 repository find --db .render.db docs --expr "total > 0" --sort id
 ```
 
 ```expect:partial
-[
-  {
-    "id": "rr1",
-    "name": "John",
-    "total": 45.50
-  },
-  {
-    "id": "rr2",
-    "name": "Jane",
-    "total": 10.00
-  }
-]
+[{"id":"rr1","name":"John","total":45.50},{"id":"rr2","name":"Jane","total":10.00}]
 ```
 
 ## --render none forces raw JSON
@@ -79,18 +57,7 @@ aux4 repository read --db .render.db docs --sort id --render none
 ```
 
 ```expect:partial
-[
-  {
-    "id": "rr1",
-    "name": "John",
-    "total": 45.50
-  },
-  {
-    "id": "rr2",
-    "name": "Jane",
-    "total": 10.00
-  }
-]
+[{"id":"rr1","name":"John","total":45.50},{"id":"rr2","name":"Jane","total":10.00}]
 ```
 
 ### find --render none is raw JSON
@@ -100,18 +67,7 @@ aux4 repository find --db .render.db docs --expr "total > 0" --sort id --render 
 ```
 
 ```expect:partial
-[
-  {
-    "id": "rr1",
-    "name": "John",
-    "total": 45.50
-  },
-  {
-    "id": "rr2",
-    "name": "Jane",
-    "total": 10.00
-  }
-]
+[{"id":"rr1","name":"John","total":45.50},{"id":"rr2","name":"Jane","total":10.00}]
 ```
 
 ## interactive terminal renders a table

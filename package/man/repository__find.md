@@ -6,7 +6,7 @@ Use find when you need to filter records by content rather than by id. It comple
 
 **Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database (auth token read from the `TURSO_AUTH_TOKEN` environment variable). Behavior is identical on both backends.
 
-**Output rendering.** On an interactive terminal the JSON result is rendered as a table for readability; when the output is piped, redirected, or captured by another command it stays raw JSON, unchanged. Pass `--render none` to force raw JSON even on a terminal.
+**Output rendering.** On an interactive terminal the JSON result is rendered as a table for readability; when the output is piped, redirected, or captured by another command it is emitted as compact single-line JSON (the whole array on one line, like `jq -c`), preserving number literals and key order. Pass `--render none` to force compact JSON even on a terminal.
 
 By default, records whose metadata `ttl` (an absolute expiry epoch, set via `write --ttl`) is in the past are excluded from the results, even when they match `--expr`. Records with no `ttl` are always eligible. Pass `--includeExpired true` to disable this filter and include expired records in the matches.
 
@@ -38,19 +38,7 @@ aux4 repository find users --expr "name = 'John'"
 Expected result (one matching record):
 
 ```json
-[
-  {
-    "id": "user1",
-    "name": "John",
-    "age": 30,
-    "city": "NYC",
-    "__metadata": {
-      "role": "admin",
-      "createdAt": "2021-01-01T...",
-      "updatedAt": "2021-01-01T..."
-    }
-  }
-]
+[{"id":"user1","name":"John","age":30,"city":"NYC","__metadata":{"role":"admin","createdAt":"2021-01-01T...","updatedAt":"2021-01-01T..."}}]
 ```
 
 ### Example: numeric and compound expressions

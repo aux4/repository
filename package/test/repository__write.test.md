@@ -50,18 +50,7 @@ aux4 repository read sessions --id s1 --raw true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "s1",
-    "token": "abc",
-    "__metadata": {
-      "role": "admin",
-      "ttl": *?,
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"s1","token":"abc","__metadata":{"role":"admin","ttl":*?,"createdAt":"*?","updatedAt":"*?"}}]
 ```
 
 ### Write without --ttl leaves metadata unchanged
@@ -74,17 +63,7 @@ aux4 repository read sessions --id s2 --raw true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "s2",
-    "token": "xyz",
-    "__metadata": {
-      "role": "user",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"s2","token":"xyz","__metadata":{"role":"user","createdAt":"*?","updatedAt":"*?"}}]
 ```
 
 ### Write with --access merges access labels into metadata
@@ -98,22 +77,7 @@ aux4 repository read sessions --id s3 --raw true --all true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "s3",
-    "token": "lmn",
-    "__metadata": {
-      "role": "admin",
-      "ttl": *?,
-      "access": [
-        "a",
-        "b"
-      ],
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"s3","token":"lmn","__metadata":{"role":"admin","ttl":*?,"access":["a","b"],"createdAt":"*?","updatedAt":"*?"}}]
 ```
 
 ### Write without --access adds no access key
@@ -126,15 +90,5 @@ aux4 repository read sessions --id s4 --raw true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "s4",
-    "token": "opq",
-    "__metadata": {
-      "role": "user",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"s4","token":"opq","__metadata":{"role":"user","createdAt":"*?","updatedAt":"*?"}}]
 ```

@@ -59,23 +59,7 @@ aux4 repository read products
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod1",
-    "name": "Widget",
-    "price": 19.99
-  },
-  {
-    "id": "prod2",
-    "name": "Gadget",
-    "price": 29.99
-  },
-  {
-    "id": "prod3",
-    "name": "Tool",
-    "price": 39.99
-  }
-]
+[{"id":"prod1","name":"Widget","price":19.99},{"id":"prod2","name":"Gadget","price":29.99},{"id":"prod3","name":"Tool","price":39.99}]
 ```
 
 ```execute
@@ -105,12 +89,7 @@ aux4 repository read orders
 ```
 
 ```expect:partial
-[
-  {
-    "id": "order2",
-    "total": 200
-  }
-]
+[{"id":"order2","total":200}]
 ```
 
 ### Truncate one repository doesn't affect others
@@ -139,12 +118,7 @@ aux4 repository read products
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod1",
-    "name": "Widget"
-  }
-]
+[{"id":"prod1","name":"Widget"}]
 ```
 
 ### Truncate repository with complex nested JSON data

@@ -6,7 +6,7 @@ Use this command when you need to retrieve stored JSON objects from an aux4 repo
 
 **Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database (auth token read from the `TURSO_AUTH_TOKEN` environment variable). Behavior is identical on both backends.
 
-**Output rendering.** On an interactive terminal the JSON result is rendered as a table for readability; when the output is piped, redirected, or captured by another command it stays raw JSON, unchanged. Pass `--render none` to force raw JSON even on a terminal.
+**Output rendering.** On an interactive terminal the JSON result is rendered as a table for readability; when the output is piped, redirected, or captured by another command it is emitted as compact single-line JSON (the whole array on one line, like `jq -c`), preserving number literals and key order. Pass `--render none` to force compact JSON even on a terminal.
 
 By default, records whose metadata `ttl` (an absolute expiry epoch, set via `write --ttl`) is in the past are hidden from the result — both when reading all records and when reading a single record by `--id`. Records with no `ttl` are always returned. Pass `--includeExpired true` to skip this filter and return expired records as well (useful for debugging or manual sweeps).
 
@@ -33,28 +33,7 @@ aux4 repository read users
 ```
 
 ```json
-[
-  {
-    "id": "user1",
-    "name": "John",
-    "age": 30,
-    "__metadata": {
-      "role": "admin",
-      "createdAt": "2023-01-01T12:00:00Z",
-      "updatedAt": "2023-01-01T12:00:00Z"
-    }
-  },
-  {
-    "id": "user2",
-    "name": "Jane",
-    "age": 25,
-    "__metadata": {
-      "role": "user",
-      "createdAt": "2023-01-01T12:01:00Z",
-      "updatedAt": "2023-01-01T12:01:00Z"
-    }
-  }
-]
+[{"id":"user1","name":"John","age":30,"__metadata":{"role":"admin","createdAt":"2023-01-01T12:00:00Z","updatedAt":"2023-01-01T12:00:00Z"}},{"id":"user2","name":"Jane","age":25,"__metadata":{"role":"user","createdAt":"2023-01-01T12:01:00Z","updatedAt":"2023-01-01T12:01:00Z"}}]
 ```
 
 ### Example: Read a specific record by id
@@ -66,19 +45,7 @@ aux4 repository read products --id prod123
 ```
 
 ```json
-[
-  {
-    "id": "prod123",
-    "name": "Widget",
-    "price": 19.99,
-    "inStock": true,
-    "__metadata": {
-      "category": "electronics",
-      "createdAt": "2023-01-01T12:10:00Z",
-      "updatedAt": "2023-01-01T12:10:00Z"
-    }
-  }
-]
+[{"id":"prod123","name":"Widget","price":19.99,"inStock":true,"__metadata":{"category":"electronics","createdAt":"2023-01-01T12:10:00Z","updatedAt":"2023-01-01T12:10:00Z"}}]
 ```
 
 ### Example: Empty repository or missing id

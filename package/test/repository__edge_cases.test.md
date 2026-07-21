@@ -77,12 +77,7 @@ aux4 repository read custom_test --db .custom_location.db --id item1
 ```
 
 ```expect:partial
-[
-  {
-    "id": "item1",
-    "location": "custom"
-  }
-]
+[{"id":"item1","location":"custom"}]
 ```
 
 ### Find with complex SQL injection attempt (should be safe)
@@ -131,18 +126,7 @@ aux4 repository read unicode_test --id unicode1
 ```
 
 ```expect:partial
-[
-  {
-    "id": "unicode1",
-    "name": "José García",
-    "city": "São Paulo",
-    "emoji": "🚀✨🎉",
-    "chinese": "你好世界",
-    "japanese": "こんにちは",
-    "arabic": "مرحبا",
-    "russian": "Привет"
-  }
-]
+[{"id":"unicode1","name":"José García","city":"São Paulo","emoji":"🚀✨🎉","chinese":"你好世界","japanese":"こんにちは","arabic":"مرحبا","russian":"Привет"}]
 ```
 
 ### Find with invalid SQL expressions

@@ -26,13 +26,7 @@ aux4 repository read users
 ```
 
 ```expect:partial
-[
-  {
-    "id": "user2",
-    "name": "Jane",
-    "age": 25
-  }
-]
+[{"id":"user2","name":"Jane","age":25}]
 ```
 
 ### Delete multiple records with multiple id flags
@@ -55,13 +49,7 @@ aux4 repository read products
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod2",
-    "name": "Gadget",
-    "price": 29.99
-  }
-]
+[{"id":"prod2","name":"Gadget","price":29.99}]
 ```
 
 ### Delete non-existent record
@@ -81,12 +69,7 @@ aux4 repository read items
 ```
 
 ```expect:partial
-[
-  {
-    "id": "item1",
-    "name": "Test Item"
-  }
-]
+[{"id":"item1","name":"Test Item"}]
 ```
 
 ### Delete all records using multiple ids
@@ -167,16 +150,5 @@ aux4 repository read logs
 ```
 
 ```expect:partial
-[
-  {
-    "id": "log1",
-    "level": "info",
-    "message": "Started"
-  },
-  {
-    "id": "log3",
-    "level": "warn",
-    "message": "Warning"
-  }
-]
+[{"id":"log1","level":"info","message":"Started"},{"id":"log3","level":"warn","message":"Warning"}]
 ```

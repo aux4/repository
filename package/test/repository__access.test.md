@@ -26,19 +26,7 @@ aux4 repository read docs --id ra --raw true --all true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "ra",
-    "n": "ra",
-    "__metadata": {
-      "access": [
-        "a"
-      ],
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"ra","n":"ra","__metadata":{"access":["a"],"createdAt":"*?","updatedAt":"*?"}}]
 ```
 
 ### comma-separated labels are split into a multi-element array
@@ -51,20 +39,7 @@ aux4 repository read docs --id rab --raw true --all true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "rab",
-    "n": "rab",
-    "__metadata": {
-      "access": [
-        "a",
-        "b"
-      ],
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"rab","n":"rab","__metadata":{"access":["a","b"],"createdAt":"*?","updatedAt":"*?"}}]
 ```
 
 ### writing without --access leaves the record public (no access key)
@@ -77,16 +52,7 @@ aux4 repository read docs --id pub --raw true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "n": "pub",
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"pub","n":"pub","__metadata":{"createdAt":"*?","updatedAt":"*?"}}]
 ```
 
 ## read honors access labels
@@ -109,20 +75,7 @@ aux4 repository read docs --access a
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "n": "pub"
-  },
-  {
-    "id": "ra",
-    "n": "ra"
-  },
-  {
-    "id": "rab",
-    "n": "rab"
-  }
-]
+[{"id":"pub","n":"pub"},{"id":"ra","n":"ra"},{"id":"rab","n":"rab"}]
 ```
 
 ### a non-matching label hides the restricted record
@@ -134,12 +87,7 @@ aux4 repository read docs --access z
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "n": "pub"
-  }
-]
+[{"id":"pub","n":"pub"}]
 ```
 
 ### no --access returns only public records
@@ -151,12 +99,7 @@ aux4 repository read docs
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "n": "pub"
-  }
-]
+[{"id":"pub","n":"pub"}]
 ```
 
 ### a public record is visible to everyone including no-access reads
@@ -169,16 +112,7 @@ aux4 repository read docs --access c
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "n": "pub"
-  },
-  {
-    "id": "rc",
-    "n": "rc"
-  }
-]
+[{"id":"pub","n":"pub"},{"id":"rc","n":"rc"}]
 ```
 
 ### a multi-group record is visible to a caller holding only one of its labels
@@ -190,16 +124,7 @@ aux4 repository read docs --access b
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "n": "pub"
-  },
-  {
-    "id": "rab",
-    "n": "rab"
-  }
-]
+[{"id":"pub","n":"pub"},{"id":"rab","n":"rab"}]
 ```
 
 ### --all true returns every record including restricted ones
@@ -212,24 +137,7 @@ aux4 repository read docs --all true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "n": "pub"
-  },
-  {
-    "id": "ra",
-    "n": "ra"
-  },
-  {
-    "id": "rab",
-    "n": "rab"
-  },
-  {
-    "id": "rc",
-    "n": "rc"
-  }
-]
+[{"id":"pub","n":"pub"},{"id":"ra","n":"ra"},{"id":"rab","n":"rab"},{"id":"rc","n":"rc"}]
 ```
 
 ### reading a restricted record by id without a matching label returns empty
@@ -251,12 +159,7 @@ aux4 repository read docs --id rc --access c
 ```
 
 ```expect:partial
-[
-  {
-    "id": "rc",
-    "n": "rc"
-  }
-]
+[{"id":"rc","n":"rc"}]
 ```
 
 ## find honors access labels alongside --expr
@@ -279,18 +182,7 @@ aux4 repository find docs --expr 'team = "x"' --access secret
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub1",
-    "team": "x",
-    "n": 1
-  },
-  {
-    "id": "sec1",
-    "team": "x",
-    "n": 3
-  }
-]
+[{"id":"pub1","team":"x","n":1},{"id":"sec1","team":"x","n":3}]
 ```
 
 ### access is not bypassable through expr
@@ -303,13 +195,7 @@ aux4 repository find docs --expr 'team = "x"'
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub1",
-    "team": "x",
-    "n": 1
-  }
-]
+[{"id":"pub1","team":"x","n":1}]
 ```
 
 ### find --all true applies expr but bypasses access
@@ -321,18 +207,7 @@ aux4 repository find docs --expr 'team = "y"' --all true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub2",
-    "team": "y",
-    "n": 2
-  },
-  {
-    "id": "sec2",
-    "team": "y",
-    "n": 4
-  }
-]
+[{"id":"pub2","team":"y","n":2},{"id":"sec2","team":"y","n":4}]
 ```
 
 ## access labels are safely quoted
@@ -350,12 +225,7 @@ aux4 repository read docs --access "x') OR ('1'='1"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "n": "pub"
-  }
-]
+[{"id":"pub","n":"pub"}]
 ```
 
 ## find access filter cannot be bypassed via --expr injection
@@ -384,12 +254,7 @@ aux4 repository find docs --expr "t like '%doc%' OR 1=1"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "t": "doc-public"
-  }
-]
+[{"id":"pub","t":"doc-public"}]
 ```
 
 ### an unbalanced parenthesis payload cannot leak restricted rows
@@ -403,12 +268,7 @@ aux4 repository find docs --expr "t like '%doc%') OR (1=1"
 ```
 
 ```expect:partial
-[
-  {
-    "id": "pub",
-    "t": "doc-public"
-  }
-]
+[{"id":"pub","t":"doc-public"}]
 ```
 
 ### a paren-close plus line comment is rejected

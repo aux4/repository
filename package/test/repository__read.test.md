@@ -34,18 +34,7 @@ aux4 repository read users
 ```
 
 ```expect:partial
-[
-  {
-    "id": "user1",
-    "name": "John",
-    "age": 30
-  },
-  {
-    "id": "user2",
-    "name": "Jane",
-    "age": 25
-  }
-]
+[{"id":"user1","name":"John","age":30},{"id":"user2","name":"Jane","age":25}]
 ```
 
 ### Read specific record by id
@@ -61,14 +50,7 @@ aux4 repository read products --id prod123
 ```
 
 ```expect:partial
-[
-  {
-    "id": "prod123",
-    "name": "Widget",
-    "price": 19.99,
-    "inStock": true
-  }
-]
+[{"id":"prod123","name":"Widget","price":19.99,"inStock":true}]
 ```
 
 ### Read non-existent record by id returns empty array
@@ -96,26 +78,7 @@ aux4 repository read orders --id order1
 ```
 
 ```expect:partial
-[
-  {
-    "id": "order1",
-    "customer": {
-      "name": "Alice",
-      "email": "alice@example.com"
-    },
-    "items": [
-      {
-        "id": "item1",
-        "qty": 2
-      },
-      {
-        "id": "item2",
-        "qty": 1
-      }
-    ],
-    "total": 29.98
-  }
-]
+[{"id":"order1","customer":{"name":"Alice","email":"alice@example.com"},"items":[{"id":"item1","qty":2},{"id":"item2","qty":1}],"total":29.98}]
 ```
 
 ### Read merges metadata with timestamps
@@ -131,19 +94,7 @@ aux4 repository read settings --id config1 --raw true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "config1",
-    "theme": "dark",
-    "notifications": true,
-    "__metadata": {
-      "environment": "production",
-      "version": "1.0",
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"config1","theme":"dark","notifications":true,"__metadata":{"environment":"production","version":"1.0","createdAt":"*?","updatedAt":"*?"}}]
 ```
 
 ### Read with empty metadata defaults to empty object
@@ -159,17 +110,7 @@ aux4 repository read logs --id log1 --raw true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "log1",
-    "level": "info",
-    "message": "System started",
-    "__metadata": {
-      "createdAt": "*?",
-      "updatedAt": "*?"
-    }
-  }
-]
+[{"id":"log1","level":"info","message":"System started","__metadata":{"createdAt":"*?","updatedAt":"*?"}}]
 ```
 
 ### Read hides expired records by default
@@ -186,12 +127,7 @@ aux4 repository read ttl_hide
 ```
 
 ```expect:partial
-[
-  {
-    "id": "live",
-    "n": "l"
-  }
-]
+[{"id":"live","n":"l"}]
 ```
 
 ### Read --includeExpired shows expired records
@@ -208,16 +144,7 @@ aux4 repository read ttl_show --includeExpired true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "live",
-    "n": "l"
-  },
-  {
-    "id": "dead",
-    "n": "d"
-  }
-]
+[{"id":"live","n":"l"},{"id":"dead","n":"d"}]
 ```
 
 ### Read by id hides an expired record unless --includeExpired
@@ -241,10 +168,5 @@ aux4 repository read ttl_byid --id dead --includeExpired true
 ```
 
 ```expect:partial
-[
-  {
-    "id": "dead",
-    "n": "d"
-  }
-]
+[{"id":"dead","n":"d"}]
 ```
