@@ -9,6 +9,8 @@ name: Cross-Platform Test
 
 on:
   push:
+    branches-ignore:
+      - main
   pull_request:
 
 concurrency:

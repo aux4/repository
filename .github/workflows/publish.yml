@@ -1,0 +1,96 @@
+name: Publish Package
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**'
+      - '!.github/**'
+      - '!README.md'
+      - '!LICENSE'
+      - '!.gitignore'
+
+  workflow_dispatch:
+    inputs:
+      level:
+        description: 'Release level (patch, minor, major)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+concurrency:
+  group: publish-package
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+
+      - name: Test
+        uses: aux4/test-package-action@v1
+        with:
+          build_command: aux4 builder linux
+
+  test-darwin:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+
+      - name: Test
+        uses: aux4/test-package-action@v1
+        with:
+          build_command: aux4 builder darwin
+
+  publish:
+    needs: [test-linux, test-darwin]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+
+      - name: Install aux4
+        run: |
+          curl -fsSL https://aux4.sh | sh
+          echo "$HOME/.aux4.config/packages/aux4/aux4" >> $GITHUB_PATH
+
+      - name: Build
+        run: |
+          aux4 build
+
+      - name: Publish package
+        uses: aux4/publish-package-action@v1
+        with:
+          working_directory: package
+          package_directory: .
+          level: ${{ inputs.level || 'patch' }}
+          aux4_token: ${{ secrets.AUX4_ACCESS_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
