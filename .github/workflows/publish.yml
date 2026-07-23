@@ -45,7 +45,7 @@ jobs:
       - name: Test
         uses: aux4/test-package-action@v1
         with:
-          build_command: aux4 builder linux
+          build_command: "curl -fsSL https://pkger.aux4.sh | sh && aux4 builder linux"
 
   test-darwin:
     runs-on: macos-latest
@@ -61,7 +61,7 @@ jobs:
       - name: Test
         uses: aux4/test-package-action@v1
         with:
-          build_command: aux4 builder darwin
+          build_command: "curl -fsSL https://pkger.aux4.sh | sh && aux4 builder darwin"
 
   publish:
     needs: [test-linux, test-darwin]
