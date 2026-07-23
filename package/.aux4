@@ -3,6 +3,7 @@
   "name": "repository",
   "version": "1.3.0",
   "description": "Simplified aux4 database",
+  "license": "Apache-2.0",
   "tags": [
     "aux4",
     "database",
