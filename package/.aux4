@@ -137,7 +137,7 @@
         {
           "name": "lease",
           "execute": [
-            "nout:${packageDir}/aux4-repository lease values(db, repository, expr, group, ttl, owner, raw)"
+            "${packageDir}/aux4-repository lease values(db, repository, expr, group, ttl, owner, raw)"
           ],
           "help": {
             "text": "Atomically lease the oldest eligible record in a repository (visibility-timeout based, optionally serialized per group)",

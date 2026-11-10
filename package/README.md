@@ -120,7 +120,7 @@ aux4 repository lease jobs --ttl 30 --owner worker-1
 ```
 
 ```text
-{"id":"3f1a...","task":"send-email","leaseExpiresAt":1732310400,"leaseOwner":"worker-1"}
+[{"id":"3f1a...","task":"send-email","leaseExpiresAt":1732310400,"leaseOwner":"worker-1"}]
 ```
 
 A second `lease` call inside the 30 second visibility window finds nothing else eligible:

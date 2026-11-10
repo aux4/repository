@@ -30,9 +30,9 @@ eligible again for the very next `lease` call, exactly as an expired `claim` cou
 - **Completing.** Remove the record with `aux4 repository delete` once the work it represents is
   done; a deleted record can never be leased again.
 
-**On success:** exits 0 and prints the leased record as a single-line JSON object (same shape as
-`find --raw`): `{"id": ..., ...data, "__metadata": {...}}` (the `__metadata` block only appears with
-`--raw true`).
+**On success:** exits 0 and prints a single-element JSON array containing the leased record (same
+shape as `find --raw`): `[{"id": ..., ...data, "__metadata": {...}}]` (the `__metadata` block only
+appears with `--raw true`).
 
 **When nothing is eligible to lease:** prints `[]` and exits with code `4` — the same convention
 `find` and `read` use for an empty result.
@@ -64,7 +64,7 @@ aux4 repository lease jobs --ttl 30 --owner worker-1
 ```
 
 ```text
-{"id":"3f1a...","task":"send-email","leaseExpiresAt":1732310400,"leaseOwner":"worker-1"}
+[{"id":"3f1a...","task":"send-email","leaseExpiresAt":1732310400,"leaseOwner":"worker-1"}]
 ```
 
 A second `lease` call within the 30 second visibility window finds nothing else eligible:
