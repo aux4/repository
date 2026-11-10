@@ -99,6 +99,42 @@
           }
         },
         {
+          "name": "claim",
+          "execute": [
+            "stdin:${packageDir}/aux4-repository claim values(db, repository, id, data, ttl)"
+          ],
+          "help": {
+            "text": "Atomically claim an id in the aux4 repository, failing if it is already held",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to write to",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to claim in",
+                "arg": true
+              },
+              {
+                "name": "id",
+                "text": "The id to claim",
+                "default": ""
+              },
+              {
+                "name": "data",
+                "text": "The data to write to the repository (JSON string)",
+                "default": ""
+              },
+              {
+                "name": "ttl",
+                "text": "Time-to-live in seconds; stored as an absolute expiry epoch under metadata.ttl. A claim past its ttl counts as absent and can be re-claimed (atomically replacing it)",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
           "name": "read",
           "execute": [
             "nout:${packageDir}/aux4-repository read values(db, repository, id, raw, includeExpired, access, all, sort, limit, offset, select)"

@@ -22,6 +22,38 @@ func (s *sqlStore) Upsert(repo, id, data, metadata string) error {
 	return err
 }
 
+// InsertOnly performs a race-free "claim" of an id: a single INSERT ... ON
+// CONFLICT(id) DO UPDATE ... WHERE statement, so the decide-then-write is
+// atomic at the database level (no separate read-then-write round trip).
+//
+//   - no existing row         -> plain INSERT applies, 1 row affected -> claimed
+//   - existing row, still live (metadata.ttl absent or in the future)
+//     -> the conflict WHERE is false, the UPDATE branch does not apply,
+//     0 rows affected -> NOT claimed (already held)
+//   - existing row, EXPIRED (metadata.ttl present and <= now)
+//     -> the conflict WHERE is true, the row is replaced (data, metadata,
+//     created_at, updated_at all reset) in the same statement, 1 row
+//     affected -> claimed
+//
+// Unqualified column names in the conflict WHERE/SET refer to the existing
+// (conflicting) row; `excluded.*` refers to the incoming candidate row — this
+// is standard SQLite upsert semantics, not a second query.
+func (s *sqlStore) InsertOnly(repo, id, data, metadata string) (bool, error) {
+	query := "INSERT INTO " + repo + " (id, data, metadata) VALUES (?, ?, ?) " +
+		"ON CONFLICT(id) DO UPDATE SET data = excluded.data, metadata = excluded.metadata, " +
+		"created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP " +
+		"WHERE json_extract(metadata, '$.ttl') IS NOT NULL AND json_extract(metadata, '$.ttl') <= strftime('%s','now') + 0"
+	res, err := s.db.Exec(query, id, data, metadata)
+	if err != nil {
+		return false, err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
+}
+
 func (s *sqlStore) BulkUpsert(repo string, records []UpsertRecord) error {
 	query := "INSERT INTO " + repo + " (id, data, metadata) VALUES (?, ?, ?) " +
 		"ON CONFLICT(id) DO UPDATE SET data = excluded.data, metadata = excluded.metadata, updated_at = CURRENT_TIMESTAMP"

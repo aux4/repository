@@ -32,6 +32,12 @@ type Store interface {
 	Init(repo string) error
 	// Upsert inserts or updates a record by id.
 	Upsert(repo, id, data, metadata string) error
+	// InsertOnly atomically inserts a record only if no LIVE record with that id
+	// already exists. A row that exists but has expired (metadata.ttl in the
+	// past) counts as absent and is atomically replaced by the new data in the
+	// same statement. Returns true when the write happened (claimed), false when
+	// a live record already held the id (not claimed).
+	InsertOnly(repo, id, data, metadata string) (bool, error)
 	// BulkUpsert upserts many records in a single transaction (rolled back on any
 	// error, so an import either fully applies or writes nothing).
 	BulkUpsert(repo string, records []UpsertRecord) error
