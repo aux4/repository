@@ -2,7 +2,7 @@
 
 Simplified aux4 database
 
-aux4/repository provides a tiny JSON repository backed by SQLite. It exposes a small set of commands (write, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, restrict them with access labels, and manage repository tables. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
+aux4/repository provides a tiny JSON repository backed by SQLite. It exposes a small set of commands (write, claim, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, restrict them with access labels, and manage repository tables. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
 
 This package is a building block in the aux4 ecosystem for storing and querying structured JSON data without running a separate database server. Typical use cases include quick test fixtures, local caches, small data imports/exports, and lightweight persistence for CLI tools. It ships as a single self-contained binary with no external tools required, and can store data either in a local SQLite file (the default) or in a remote Turso/libSQL database — see [Storage backends](#storage-backends---db).
 
@@ -71,6 +71,39 @@ aux4 repository write users --id 123 --data '{"name":"John"}' --metadata '{"role
 ```
 
 For full command docs see [aux4 repository write](./commands/repository/write).
+
+## Claiming an id atomically (claim)
+
+`write` always upserts — a second `write` for the same id overwrites it. When you need a **race-free
+dedupe/lock primitive** instead — "only one caller should ever win this id" — use `claim`. It writes a
+record only if no *live* record with that id already exists; an existing record whose `--ttl` has expired
+counts as absent and is atomically replaced. This makes it safe to call `claim` concurrently (including
+from multiple processes against a shared remote database) without a separate check-then-write step: there
+is no window where two callers can both believe they won.
+
+```bash
+aux4 repository claim events --id evt_12345 --data '{"source":"webhook"}' --ttl 86400
+```
+
+```text
+evt_12345
+```
+
+A retried delivery of the same event id within the ttl window is rejected instead of being reprocessed:
+
+```bash
+aux4 repository claim events --id evt_12345 --data '{"source":"webhook"}' --ttl 86400
+```
+
+```text
+Error: id "evt_12345" is already claimed
+```
+
+Unlike `write`, `--id` is **required** on `claim` — the id is the thing being claimed. `--ttl` uses the
+same semantics as `write --ttl`; a claimed record past its ttl is hidden from `read`/`find`, removed by
+`clean`, and can be claimed again (its data is replaced).
+
+For full command docs see [aux4 repository claim](./commands/repository/claim).
 
 ## Reading data (read)
 
