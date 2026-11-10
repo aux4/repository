@@ -41,6 +41,12 @@ type Store interface {
 	// BulkUpsert upserts many records in a single transaction (rolled back on any
 	// error, so an import either fully applies or writes nothing).
 	BulkUpsert(repo string, records []UpsertRecord) error
+	// Lease atomically picks the oldest eligible record (not currently leased,
+	// optionally matching a WHERE clause, optionally excluding records whose
+	// --group field value already has another LIVE lease), marks it leased by
+	// merging leaseExpiresAt/leaseOwner into its data, and returns it. Returns a
+	// nil Row (no error) when nothing is eligible to lease.
+	Lease(repo, whereClause string, whereArgs []any, groupField string, ttlSeconds int64, owner string) (*Row, error)
 	// Query runs a read query with bound parameters and returns the rows.
 	Query(query string, args ...any) ([]Row, error)
 	// QueryInt runs a query returning a single integer (e.g. count(*)).
