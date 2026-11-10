@@ -287,6 +287,15 @@ echo '{"verified":true}' | aux4 repository patch users --id u1
 
 **Note:** `patch` is a shallow top-level merge — nested objects are replaced, not deep-merged — and it cannot delete a field. These are intentional limitations of this version.
 
+**`--increment <field,...>`** bumps one or more numeric fields by 1 server-side, applied after the `--data` merge. A missing or non-numeric field is treated as 0 before the bump. This lets a caller atomically increment a counter without computing the arithmetic itself:
+
+```bash
+# bump a retry counter and reset a lease in one call -- no shell arithmetic needed
+aux4 repository patch messages --id m1 --data '{"leaseExpiresAt":0}' --increment attempts
+```
+
+`--increment` can be used with or without `--data` (if used alone, `patch` does not wait on stdin).
+
 **`touch`** updates only metadata without changing `data`: `--ttl <seconds>` sets a new expiry epoch (`now + seconds`) and `--access "a,b"` replaces the access labels. At least one of `--ttl`/`--access` must be given.
 
 ```bash

@@ -1,3 +1,16 @@
+# aux4/repository 1.3.7
+
+## Added
+
+- `patch` command: new `--increment <field,...>` flag bumps one or more
+  numeric fields by 1 server-side, applied after the `--data` merge (missing
+  or non-numeric fields treated as 0). Lets a caller atomically increment a
+  counter (e.g. a message's retry/attempts count) without computing the
+  arithmetic itself, so packages composing a durable primitive on top of
+  `repository` (like aux4/queue's `--storage repository` `nack`) never need
+  shell `$((...))` math. Using `--increment` without `--data` no longer waits
+  on stdin.
+
 # aux4/repository 1.3.5
 
 ## Added

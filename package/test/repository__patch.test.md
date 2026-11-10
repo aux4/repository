@@ -88,6 +88,62 @@ aux4 repository read users --id u1 --all true
 [{"id":"u1","name":"John","age":30,"total":45.50,"via":"stdin"}]
 ```
 
+### --increment bumps a numeric field by 1, applied after the data merge
+
+```execute
+aux4 repository patch users --id u1 --data '{"city":"Chicago"}' --increment age
+aux4 repository read users --id u1 --all true
+```
+
+```expect:partial
+[{"id":"u1","name":"John","age":31,"total":45.50,"city":"Chicago"}]
+```
+
+### --increment with no --data (no stdin hang) still bumps the field
+
+```execute
+aux4 repository patch users --id u1 --increment age
+aux4 repository read users --id u1 --all true
+```
+
+```expect:partial
+[{"id":"u1","name":"John","age":31,"total":45.50}]
+```
+
+### --increment on a missing field treats it as 0, so the result is 1
+
+```execute
+aux4 repository patch users --id u1 --data '{}' --increment visits
+aux4 repository read users --id u1 --all true
+```
+
+```expect:partial
+[{"id":"u1","name":"John","age":30,"total":45.50,"visits":1}]
+```
+
+### --increment accepts a comma-separated list of fields, each bumped once
+
+```execute
+aux4 repository patch users --id u1 --data '{}' --increment age,visits
+aux4 repository read users --id u1 --all true
+```
+
+```expect:partial
+[{"id":"u1","name":"John","age":31,"total":45.50,"visits":1}]
+```
+
+### two successive --increment calls accumulate (not a one-shot bump)
+
+```execute
+aux4 repository patch users --id u1 --increment age
+aux4 repository patch users --id u1 --increment age
+aux4 repository read users --id u1 --all true
+```
+
+```expect:partial
+[{"id":"u1","name":"John","age":32,"total":45.50}]
+```
+
 ### errors when the id does not exist (update-only, not an upsert)
 
 ```execute

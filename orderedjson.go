@@ -62,6 +62,16 @@ func setKV(kvs []kv, key string, val json.RawMessage) []kv {
 	return append(kvs, kv{Key: key, Val: val})
 }
 
+// getKV returns the raw value for key and whether it was present.
+func getKV(kvs []kv, key string) (json.RawMessage, bool) {
+	for _, e := range kvs {
+		if e.Key == key {
+			return e.Val, true
+		}
+	}
+	return nil, false
+}
+
 // removeKV returns a copy of kvs with the given key removed.
 func removeKV(kvs []kv, key string) []kv {
 	res := make([]kv, 0, len(kvs))

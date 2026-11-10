@@ -361,10 +361,10 @@
         {
           "name": "patch",
           "execute": [
-            "stdin:${packageDir}/aux4-repository patch values(db, repository, id, data)"
+            "stdin:${packageDir}/aux4-repository patch values(db, repository, id, data, increment)"
           ],
           "help": {
-            "text": "Merge-update an existing record's data (shallow top-level merge; update-only, not an upsert)",
+            "text": "Merge-update an existing record's data (shallow top-level merge; update-only, not an upsert). Optionally bumps numeric fields by 1 server-side",
             "variables": [
               {
                 "name": "db",
@@ -383,7 +383,12 @@
               },
               {
                 "name": "data",
-                "text": "JSON patch payload (or piped via stdin). Top-level keys set/override the record's data; keys not mentioned are preserved. Any id field in the payload is ignored.",
+                "text": "JSON patch payload (or piped via stdin, unless --increment is used with no data). Top-level keys set/override the record's data; keys not mentioned are preserved. Any id field in the payload is ignored.",
+                "default": ""
+              },
+              {
+                "name": "increment",
+                "text": "Comma-separated list of numeric fields to bump by 1 (missing or non-numeric treated as 0), applied after the --data merge. Lets a caller atomically increment a counter (e.g. a retry count) without computing the arithmetic itself",
                 "default": ""
               }
             ]
