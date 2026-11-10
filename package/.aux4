@@ -1,7 +1,7 @@
 {
   "scope": "aux4",
   "name": "repository",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Simplified aux4 database",
   "license": "Apache-2.0",
   "tags": [
@@ -130,6 +130,52 @@
                 "name": "ttl",
                 "text": "Time-to-live in seconds; stored as an absolute expiry epoch under metadata.ttl. A claim past its ttl counts as absent and can be re-claimed (atomically replacing it)",
                 "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "lease",
+          "execute": [
+            "nout:${packageDir}/aux4-repository lease values(db, repository, expr, group, ttl, owner, raw)"
+          ],
+          "help": {
+            "text": "Atomically lease the oldest eligible record in a repository (visibility-timeout based, optionally serialized per group)",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database to lease from",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository to lease from",
+                "arg": true
+              },
+              {
+                "name": "expr",
+                "text": "SQL expression narrowing which records are eligible (same syntax as find --expr)",
+                "default": ""
+              },
+              {
+                "name": "group",
+                "text": "Data field name to serialize on: only one LIVE lease at a time per distinct value of this field",
+                "default": ""
+              },
+              {
+                "name": "ttl",
+                "text": "Visibility timeout in seconds. The lease expires on its own once this elapses; an expired lease is free for the next caller to re-lease",
+                "default": ""
+              },
+              {
+                "name": "owner",
+                "text": "Opaque identifier of the leasing caller, stored as data.leaseOwner",
+                "default": ""
+              },
+              {
+                "name": "raw",
+                "text": "Include metadata in the output",
+                "default": "false"
               }
             ]
           }

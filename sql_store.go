@@ -1,6 +1,11 @@
 package main
 
-import "database/sql"
+import (
+	"database/sql"
+	"encoding/json"
+	"strconv"
+	"time"
+)
 
 // sqlStore implements Store over any database/sql driver. Both the local
 // (modernc.org/sqlite) and remote (Turso/libSQL) backends wrap it, so they run
@@ -127,4 +132,68 @@ func (s *sqlStore) ListTables() ([]string, error) {
 
 func (s *sqlStore) Close() error {
 	return s.db.Close()
+}
+
+// Lease implements the generic lease-next primitive described on the Store
+// interface. It is a plain SQLite backend operation (no app-level locking
+// beyond the database's own writer serialization): candidates are read, then
+// the winning row is claimed with a single UPDATE whose WHERE clause re-checks
+// the exact same eligibility predicate used to select it. If a concurrent
+// caller already leased that row (or, with --group, another row in the same
+// group) between the read and the write, RowsAffected is 0 and the next
+// candidate is tried -- so two concurrent callers can never walk away with the
+// same row, and a losing caller never silently overwrites a winner's lease.
+func (s *sqlStore) Lease(repo, whereClause string, whereArgs []any, groupField string, ttlSeconds int64, owner string) (*Row, error) {
+	predicate := "(json_extract(data,'$.leaseExpiresAt') IS NULL OR json_extract(data,'$.leaseExpiresAt') <= strftime('%s','now') + 0)"
+	if whereClause != "" {
+		predicate += " AND (" + whereClause + ")"
+	}
+	if groupField != "" {
+		predicate += " AND (json_extract(data,'$." + groupField + "') IS NULL OR NOT EXISTS (" +
+			"SELECT 1 FROM " + repo + " g WHERE g.id <> " + repo + ".id" +
+			" AND json_extract(g.data,'$." + groupField + "') = json_extract(" + repo + ".data,'$." + groupField + "')" +
+			" AND json_extract(g.data,'$.leaseExpiresAt') > strftime('%s','now') + 0))"
+	}
+
+	selectQuery := "SELECT " + selectColumns + " FROM " + repo + " WHERE " + predicate +
+		" ORDER BY created_at ASC, id ASC LIMIT 20"
+	candidates, err := s.Query(selectQuery, whereArgs...)
+	if err != nil {
+		return nil, err
+	}
+
+	exp := time.Now().Unix() + ttlSeconds
+	for _, cand := range candidates {
+		dataKVs, err := parseObject([]byte(cand.Data))
+		if err != nil {
+			return nil, err
+		}
+		dataKVs = setKV(dataKVs, "leaseExpiresAt", json.RawMessage(strconv.FormatInt(exp, 10)))
+		if owner != "" {
+			ownerBytes, err := json.Marshal(owner)
+			if err != nil {
+				return nil, err
+			}
+			dataKVs = setKV(dataKVs, "leaseOwner", json.RawMessage(ownerBytes))
+		}
+		newData, err := emitObject(dataKVs)
+		if err != nil {
+			return nil, err
+		}
+
+		updateQuery := "UPDATE " + repo + " SET data = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND " + predicate
+		args := append([]any{string(newData), cand.ID}, whereArgs...)
+		n, err := s.Exec(updateQuery, args...)
+		if err != nil {
+			return nil, err
+		}
+		if n == 1 {
+			cand.Data = string(newData)
+			return &cand, nil
+		}
+		// Lost the race on this candidate (leased or group-claimed by someone
+		// else between the read and the write) -- try the next one.
+	}
+
+	return nil, nil
 }

@@ -2,7 +2,7 @@
 
 Simplified aux4 database
 
-aux4/repository provides a tiny JSON repository backed by SQLite. It exposes a small set of commands (write, claim, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, restrict them with access labels, and manage repository tables. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
+aux4/repository provides a tiny JSON repository backed by SQLite. It exposes a small set of commands (write, claim, lease, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, restrict them with access labels, and manage repository tables. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
 
 This package is a building block in the aux4 ecosystem for storing and querying structured JSON data without running a separate database server. Typical use cases include quick test fixtures, local caches, small data imports/exports, and lightweight persistence for CLI tools. It ships as a single self-contained binary with no external tools required, and can store data either in a local SQLite file (the default) or in a remote Turso/libSQL database — see [Storage backends](#storage-backends---db).
 
@@ -104,6 +104,58 @@ same semantics as `write --ttl`; a claimed record past its ttl is hidden from `r
 `clean`, and can be claimed again (its data is replaced).
 
 For full command docs see [aux4 repository claim](./commands/repository/claim).
+
+## Leasing the next item (lease)
+
+`claim` dedupes by a known id. `lease` is the complement: pick the **oldest eligible record you don't
+know the id of yet**, mark it leased for a visibility timeout, and hand it back. It's the generic
+primitive for building a work queue (or any other FIFO, visibility-timeout-based claim) on top of a
+repository table — there is no separate lease table, no server process, and no sweeper: a lease is
+just a `leaseExpiresAt` (and, with `--owner`, `leaseOwner`) field merged into the record's own `data`,
+and it expires on its own once that time passes.
+
+```bash
+aux4 repository write jobs --data '{"task":"send-email"}'
+aux4 repository lease jobs --ttl 30 --owner worker-1
+```
+
+```text
+{"id":"3f1a...","task":"send-email","leaseExpiresAt":1732310400,"leaseOwner":"worker-1"}
+```
+
+A second `lease` call inside the 30 second visibility window finds nothing else eligible:
+
+```bash
+aux4 repository lease jobs --ttl 30
+```
+
+```text
+[]
+```
+
+Narrow which records are eligible with `--expr` (same syntax as `find --expr`), and serialize
+processing per a data field with `--group <field>` — at most one LIVE lease at a time per distinct
+value of that field, so messages for the same chat/conversation/tenant are always leased one at a
+time while unrelated groups still lease concurrently:
+
+```bash
+aux4 repository write chats --data '{"chatId":"c1","text":"hi"}'
+aux4 repository write chats --data '{"chatId":"c1","text":"are you there?"}'
+aux4 repository lease chats --ttl 60 --group chatId
+```
+
+Only the first `c1` message is leased; its sibling stays ineligible until the lease is released or
+completed.
+
+Two concurrent `lease` calls can never return the same record — the winning write re-checks the exact
+eligibility predicate used to pick the candidate, so a loser's write affects 0 rows and it tries the
+next candidate instead of overwriting the winner.
+
+There is no dedicated release/nack verb: patch `leaseExpiresAt` back to `0` with `aux4 repository
+patch` to make a record immediately eligible again (e.g. to retry now instead of waiting out the
+visibility timeout), and `aux4 repository delete` it once the work is done.
+
+For full command docs see [aux4 repository lease](./commands/repository/lease).
 
 ## Reading data (read)
 
