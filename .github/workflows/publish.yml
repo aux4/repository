@@ -180,8 +180,22 @@ jobs:
 
           jq --arg v "$NEW_VERSION" '.version = $v' package/.aux4 > package/.aux4.tmp && mv package/.aux4.tmp package/.aux4
 
+      # Plain `curl aux4.sh` only installs the bare engine + aux4/aux4 base
+      # commands, not the aux4/pkger package (no bootstrap install path for it
+      # standalone), so package/publish uses the aux4/aux4 Docker image, which
+      # bundles pkger — the same approach aux4/publish-package-action@v1 uses
+      # internally on main.
+      - name: Pull latest aux4 image
+        run: docker pull aux4/aux4:latest
+
       - name: Build package
-        run: cd package && aux4 aux4 pkger build .
+        run: |
+          docker run --rm \
+            --user $(id -u):$(id -g) \
+            -v $(pwd):/workspace \
+            -w /workspace/package \
+            aux4/aux4:latest \
+            aux4 pkger build .
 
       - name: Mint dev hub publish token
         id: devmint
@@ -197,12 +211,21 @@ jobs:
       - name: Publish to dev hub
         env:
           AUX4_ACCESS_TOKEN: ${{ steps.devmint.outputs.token }}
-          AUX4_REGISTRY_URL: https://dev.api.hub.aux4.io/v1/packages
         run: |
           SCOPE="${{ steps.current.outputs.scope }}"
           NAME="${{ steps.current.outputs.name }}"
           VERSION="${{ steps.version.outputs.version }}"
-          cd package && aux4 aux4 pkger publish --file "${SCOPE}_${NAME}_${VERSION}.zip"
+          PACKAGE_FILE="${SCOPE}_${NAME}_${VERSION}.zip"
+          AUX4_ACCESS_TOKEN=$(echo -n "$AUX4_ACCESS_TOKEN" | tr -d '[:space:]')
+          docker run --rm \
+            --user $(id -u):$(id -g) \
+            -v $(pwd):/workspace \
+            -w /workspace/package \
+            -e AUX4_ACCESS_TOKEN="${AUX4_ACCESS_TOKEN}" \
+            -e AUX4_REGISTRY_URL="https://dev.api.hub.aux4.io/v1/packages" \
+            --entrypoint sh \
+            aux4/aux4:latest \
+            -c "aux4 aux4 pkger publish \"${PACKAGE_FILE}\""
 
       - name: Commit the dev version
         run: |
