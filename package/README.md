@@ -2,7 +2,7 @@
 
 Simplified aux4 database
 
-aux4/repository provides a tiny JSON repository backed by SQLite. It exposes a small set of commands (write, claim, lease, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, restrict them with access labels, and manage repository tables. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
+aux4/repository provides a tiny JSON repository backed by SQLite. It exposes a small set of commands (write, claim, lease, renew, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, restrict them with access labels, and manage repository tables. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
 
 This package is a building block in the aux4 ecosystem for storing and querying structured JSON data without running a separate database server. Typical use cases include quick test fixtures, local caches, small data imports/exports, and lightweight persistence for CLI tools. It ships as a single self-contained binary with no external tools required, and can store data either in a local SQLite file (the default) or in a remote Turso/libSQL database — see [Storage backends](#storage-backends---db).
 
@@ -156,6 +156,35 @@ patch` to make a record immediately eligible again (e.g. to retry now instead of
 visibility timeout), and `aux4 repository delete` it once the work is done.
 
 For full command docs see [aux4 repository lease](./commands/repository/lease).
+
+### Extending a lease (renew)
+
+A caller that is still processing a leased record — and expects to run longer than the visibility
+timeout it originally leased with — can extend it in place with `renew`, without re-leasing:
+
+```bash
+aux4 repository write jobs --id job1 --data '{"task":"send-email"}'
+aux4 repository lease jobs --ttl 30
+aux4 repository renew jobs --id job1 --ttl 30
+```
+
+```text
+job1
+```
+
+`renew` only ever extends a **still-live** lease — the update re-checks that `leaseExpiresAt` is still
+in the future at write time. If the lease already expired (and especially if another `lease` call has
+since picked the record up), `renew` fails instead of resurrecting it:
+
+```bash
+aux4 repository renew jobs --id job1 --ttl 30
+```
+
+```text
+[]
+```
+
+For full command docs see [aux4 repository renew](./commands/repository/renew).
 
 ## Reading data (read)
 

@@ -197,3 +197,39 @@ func (s *sqlStore) Lease(repo, whereClause string, whereArgs []any, groupField s
 
 	return nil, nil
 }
+
+// Renew extends a still-live lease on a specific record by id (a heartbeat
+// for a caller that is still processing it), to now + ttlSeconds. It is the
+// same read-then-conditional-write race protection as Lease: the UPDATE
+// re-checks that leaseExpiresAt is still in the future at write time, so a
+// lease that already expired -- and may have been picked up by a different
+// Lease call in the meantime -- can never be silently resurrected by a late
+// renew. Returns false (no error) when the id does not exist or its lease is
+// not currently live.
+func (s *sqlStore) Renew(repo, id string, ttlSeconds int64) (bool, error) {
+	rows, err := s.Query("SELECT "+selectColumns+" FROM "+repo+" WHERE id = ?", id)
+	if err != nil {
+		return false, err
+	}
+	if len(rows) == 0 {
+		return false, nil
+	}
+
+	dataKVs, err := parseObject([]byte(rows[0].Data))
+	if err != nil {
+		return false, err
+	}
+	exp := time.Now().Unix() + ttlSeconds
+	dataKVs = setKV(dataKVs, "leaseExpiresAt", json.RawMessage(strconv.FormatInt(exp, 10)))
+	newData, err := emitObject(dataKVs)
+	if err != nil {
+		return false, err
+	}
+
+	updateQuery := "UPDATE " + repo + " SET data = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND json_extract(data,'$.leaseExpiresAt') > strftime('%s','now') + 0"
+	n, err := s.Exec(updateQuery, string(newData), id)
+	if err != nil {
+		return false, err
+	}
+	return n == 1, nil
+}

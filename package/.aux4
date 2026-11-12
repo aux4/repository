@@ -181,6 +181,37 @@
           }
         },
         {
+          "name": "renew",
+          "execute": [
+            "${packageDir}/aux4-repository renew values(db, repository, id, ttl)"
+          ],
+          "help": {
+            "text": "Extend a still-live lease on a specific record (heartbeat), without re-leasing it",
+            "variables": [
+              {
+                "name": "db",
+                "text": "The database holding the leased record",
+                "default": ".local.db"
+              },
+              {
+                "name": "repository",
+                "text": "The name of the repository holding the leased record",
+                "arg": true
+              },
+              {
+                "name": "id",
+                "text": "The id of the leased record to renew (required)",
+                "default": ""
+              },
+              {
+                "name": "ttl",
+                "text": "New visibility timeout in seconds, counted from now (required)",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
           "name": "read",
           "execute": [
             "nout:${packageDir}/aux4-repository read values(db, repository, id, raw, includeExpired, access, all, sort, limit, offset, select)"

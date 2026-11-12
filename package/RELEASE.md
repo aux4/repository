@@ -1,3 +1,18 @@
+# aux4/repository 1.3.9
+
+## Added
+
+- `renew` command: extends a still-live lease on a specific record (`--id`)
+  to `now + --ttl` seconds, without re-leasing it — a heartbeat for a caller
+  that is still processing a record it already holds via `lease` and expects
+  to run longer than its original visibility timeout. The update re-checks
+  that `leaseExpiresAt` is still in the future at write time, so a lease that
+  already expired (and may have been picked up by a different `lease` call)
+  is never silently resurrected by a late renew; it fails instead (prints
+  `[]`, exits 4), the same empty-result convention as `lease`/`find`/`read`.
+  This is the primitive aux4/queue's `--storage repository` work-queue mode
+  uses for its own new `renew` command.
+
 # aux4/repository 1.3.7
 
 ## Added

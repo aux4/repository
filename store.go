@@ -47,6 +47,11 @@ type Store interface {
 	// merging leaseExpiresAt/leaseOwner into its data, and returns it. Returns a
 	// nil Row (no error) when nothing is eligible to lease.
 	Lease(repo, whereClause string, whereArgs []any, groupField string, ttlSeconds int64, owner string) (*Row, error)
+	// Renew extends a still-live lease on a specific record by id to
+	// now + ttlSeconds, atomically re-checking that the lease has not already
+	// expired. Returns false (no error) when the id does not exist or its
+	// lease is not currently live.
+	Renew(repo, id string, ttlSeconds int64) (bool, error)
 	// Query runs a read query with bound parameters and returns the rows.
 	Query(query string, args ...any) ([]Row, error)
 	// QueryInt runs a query returning a single integer (e.g. count(*)).

@@ -82,6 +82,54 @@ func cmdLease(args []string) error {
 	return outputRows([]Row{*row}, raw, nil)
 }
 
+// cmdRenew extends a still-live lease on a specific record (identified by
+// --id) to now + --ttl seconds -- a heartbeat for a caller that is still
+// processing a leased record and needs to keep it from expiring and being
+// re-leased to someone else mid-processing. Exit 0 and print the id on
+// success; exit with exitInjection and print "[]" when the id does not exist
+// or its lease is not currently live (already expired, possibly re-leased by
+// another caller), mirroring lease's empty-result convention.
+// args: db, repository, id, ttl
+func cmdRenew(args []string) error {
+	db := arg(args, 0)
+	repo := arg(args, 1)
+	id := strings.TrimSpace(arg(args, 2))
+	ttlArg := strings.TrimSpace(arg(args, 3))
+
+	if id == "" {
+		return fmt.Errorf("--id is required for renew")
+	}
+	if ttlArg == "" {
+		return fmt.Errorf("--ttl is required for renew")
+	}
+	ttlSeconds, err := strconv.ParseInt(ttlArg, 10, 64)
+	if err != nil {
+		return fmt.Errorf("invalid --ttl value %q: %v", ttlArg, err)
+	}
+
+	store, err := NewStore(db)
+	if err != nil {
+		return err
+	}
+	defer store.Close()
+
+	if err := store.Init(repo); err != nil {
+		return err
+	}
+
+	ok, err := store.Renew(repo, id, ttlSeconds)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		fmt.Println("[]")
+		os.Exit(exitInjection)
+	}
+
+	fmt.Println(id)
+	return nil
+}
+
 // isSimpleIdentifier guards --group (interpolated directly into SQL as a JSON
 // path segment) against anything but a plain field name.
 func isSimpleIdentifier(s string) bool {

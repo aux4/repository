@@ -18,7 +18,7 @@ func arg(args []string, i int) string {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Error: missing command (expected init, write, claim, lease, read, find, count, patch, touch, import, list, drop, delete, truncate or clean)")
+		fmt.Fprintln(os.Stderr, "Error: missing command (expected init, write, claim, lease, renew, read, find, count, patch, touch, import, list, drop, delete, truncate or clean)")
 		os.Exit(1)
 	}
 
@@ -35,6 +35,8 @@ func main() {
 		err = cmdClaim(args)
 	case "lease":
 		err = cmdLease(args)
+	case "renew":
+		err = cmdRenew(args)
 	case "read":
 		err = cmdRead(args)
 	case "find":
