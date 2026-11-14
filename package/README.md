@@ -2,7 +2,7 @@
 
 Simplified aux4 database
 
-aux4/repository provides a tiny JSON repository backed by SQLite. It exposes a small set of commands (write, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, restrict them with access labels, and manage repository tables. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
+aux4/repository provides a tiny JSON repository backed by SQLite. It exposes a small set of commands (write, claim, lease, renew, read, find, delete, truncate, clean) that let you store arbitrary JSON records keyed by id, query them using SQL-like expressions, optionally expire records with a time-to-live, restrict them with access labels, and manage repository tables. It's designed to be simple to use from shell scripts and other aux4 packages, and to work with stdin-based workflows (pipe JSON into write) or explicit --data flags.
 
 This package is a building block in the aux4 ecosystem for storing and querying structured JSON data without running a separate database server. Typical use cases include quick test fixtures, local caches, small data imports/exports, and lightweight persistence for CLI tools. It ships as a single self-contained binary with no external tools required, and can store data either in a local SQLite file (the default) or in a remote Turso/libSQL database — see [Storage backends](#storage-backends---db).
 
@@ -71,6 +71,120 @@ aux4 repository write users --id 123 --data '{"name":"John"}' --metadata '{"role
 ```
 
 For full command docs see [aux4 repository write](./commands/repository/write).
+
+## Claiming an id atomically (claim)
+
+`write` always upserts — a second `write` for the same id overwrites it. When you need a **race-free
+dedupe/lock primitive** instead — "only one caller should ever win this id" — use `claim`. It writes a
+record only if no *live* record with that id already exists; an existing record whose `--ttl` has expired
+counts as absent and is atomically replaced. This makes it safe to call `claim` concurrently (including
+from multiple processes against a shared remote database) without a separate check-then-write step: there
+is no window where two callers can both believe they won.
+
+```bash
+aux4 repository claim events --id evt_12345 --data '{"source":"webhook"}' --ttl 86400
+```
+
+```text
+evt_12345
+```
+
+A retried delivery of the same event id within the ttl window is rejected instead of being reprocessed:
+
+```bash
+aux4 repository claim events --id evt_12345 --data '{"source":"webhook"}' --ttl 86400
+```
+
+```text
+Error: id "evt_12345" is already claimed
+```
+
+Unlike `write`, `--id` is **required** on `claim` — the id is the thing being claimed. `--ttl` uses the
+same semantics as `write --ttl`; a claimed record past its ttl is hidden from `read`/`find`, removed by
+`clean`, and can be claimed again (its data is replaced).
+
+For full command docs see [aux4 repository claim](./commands/repository/claim).
+
+## Leasing the next item (lease)
+
+`claim` dedupes by a known id. `lease` is the complement: pick the **oldest eligible record you don't
+know the id of yet**, mark it leased for a visibility timeout, and hand it back. It's the generic
+primitive for building a work queue (or any other FIFO, visibility-timeout-based claim) on top of a
+repository table — there is no separate lease table, no server process, and no sweeper: a lease is
+just a `leaseExpiresAt` (and, with `--owner`, `leaseOwner`) field merged into the record's own `data`,
+and it expires on its own once that time passes.
+
+```bash
+aux4 repository write jobs --data '{"task":"send-email"}'
+aux4 repository lease jobs --ttl 30 --owner worker-1
+```
+
+```text
+[{"id":"3f1a...","task":"send-email","leaseExpiresAt":1732310400,"leaseOwner":"worker-1"}]
+```
+
+A second `lease` call inside the 30 second visibility window finds nothing else eligible:
+
+```bash
+aux4 repository lease jobs --ttl 30
+```
+
+```text
+[]
+```
+
+Narrow which records are eligible with `--expr` (same syntax as `find --expr`), and serialize
+processing per a data field with `--group <field>` — at most one LIVE lease at a time per distinct
+value of that field, so messages for the same chat/conversation/tenant are always leased one at a
+time while unrelated groups still lease concurrently:
+
+```bash
+aux4 repository write chats --data '{"chatId":"c1","text":"hi"}'
+aux4 repository write chats --data '{"chatId":"c1","text":"are you there?"}'
+aux4 repository lease chats --ttl 60 --group chatId
+```
+
+Only the first `c1` message is leased; its sibling stays ineligible until the lease is released or
+completed.
+
+Two concurrent `lease` calls can never return the same record — the winning write re-checks the exact
+eligibility predicate used to pick the candidate, so a loser's write affects 0 rows and it tries the
+next candidate instead of overwriting the winner.
+
+There is no dedicated release/nack verb: patch `leaseExpiresAt` back to `0` with `aux4 repository
+patch` to make a record immediately eligible again (e.g. to retry now instead of waiting out the
+visibility timeout), and `aux4 repository delete` it once the work is done.
+
+For full command docs see [aux4 repository lease](./commands/repository/lease).
+
+### Extending a lease (renew)
+
+A caller that is still processing a leased record — and expects to run longer than the visibility
+timeout it originally leased with — can extend it in place with `renew`, without re-leasing:
+
+```bash
+aux4 repository write jobs --id job1 --data '{"task":"send-email"}'
+aux4 repository lease jobs --ttl 30
+aux4 repository renew jobs --id job1 --ttl 30
+```
+
+```text
+job1
+```
+
+`renew` only ever extends a **still-live** lease — the update re-checks that `leaseExpiresAt` is still
+in the future at write time. If the lease already expired (and especially if another `lease` call has
+since picked the record up), `renew` fails instead of resurrecting it:
+
+```bash
+aux4 repository renew jobs --id job1 --ttl 30
+```
+
+```text
+[]
+```
+
+For full command docs see [aux4 repository renew](./commands/repository/renew).
 
 ## Reading data (read)
 
@@ -201,6 +315,15 @@ echo '{"verified":true}' | aux4 repository patch users --id u1
 ```
 
 **Note:** `patch` is a shallow top-level merge — nested objects are replaced, not deep-merged — and it cannot delete a field. These are intentional limitations of this version.
+
+**`--increment <field,...>`** bumps one or more numeric fields by 1 server-side, applied after the `--data` merge. A missing or non-numeric field is treated as 0 before the bump. This lets a caller atomically increment a counter without computing the arithmetic itself:
+
+```bash
+# bump a retry counter and reset a lease in one call -- no shell arithmetic needed
+aux4 repository patch messages --id m1 --data '{"leaseExpiresAt":0}' --increment attempts
+```
+
+`--increment` can be used with or without `--data` (if used alone, `patch` does not wait on stdin).
 
 **`touch`** updates only metadata without changing `data`: `--ttl <seconds>` sets a new expiry epoch (`now + seconds`) and `--access "a,b"` replaces the access labels. At least one of `--ttl`/`--access` must be given.
 

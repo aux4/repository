@@ -143,3 +143,4 @@ vite.config.ts.timestamp-*
 # Go build output: local test binary + cross-compiled dist binaries
 package/aux4-repository
 package/dist/**
+/repository

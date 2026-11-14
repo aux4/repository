@@ -29,8 +29,8 @@
         {
           "name": "darwin",
           "execute": [
-            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=darwin GOARCH=amd64 go build -o package/dist/darwin/amd64/aux4-repository .",
-            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=darwin GOARCH=arm64 go build -o package/dist/darwin/arm64/aux4-repository ."
+            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=darwin GOARCH=amd64 go build -ldflags=\"-s -w\" -o package/dist/darwin/amd64/aux4-repository .",
+            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=darwin GOARCH=arm64 go build -ldflags=\"-s -w\" -o package/dist/darwin/arm64/aux4-repository ."
           ],
           "help": {
             "text": "build the app for darwin"
@@ -39,9 +39,9 @@
         {
           "name": "linux",
           "execute": [
-            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=linux GOARCH=amd64 go build -o package/dist/linux/amd64/aux4-repository .",
-            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=linux GOARCH=arm64 go build -o package/dist/linux/arm64/aux4-repository .",
-            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=linux GOARCH=386 go build -o package/dist/linux/386/aux4-repository ."
+            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=linux GOARCH=amd64 go build -ldflags=\"-s -w\" -o package/dist/linux/amd64/aux4-repository .",
+            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=linux GOARCH=arm64 go build -ldflags=\"-s -w\" -o package/dist/linux/arm64/aux4-repository .",
+            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=linux GOARCH=386 go build -ldflags=\"-s -w\" -o package/dist/linux/386/aux4-repository ."
           ],
           "help": {
             "text": "build the app for linux"
@@ -50,9 +50,9 @@
         {
           "name": "windows",
           "execute": [
-            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=windows GOARCH=amd64 go build -o package/dist/windows/amd64/aux4-repository.exe .",
-            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=windows GOARCH=arm64 go build -o package/dist/windows/arm64/aux4-repository.exe .",
-            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=windows GOARCH=386 go build -o package/dist/windows/386/aux4-repository.exe ."
+            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=windows GOARCH=amd64 go build -ldflags=\"-s -w\" -o package/dist/windows/amd64/aux4-repository.exe .",
+            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=windows GOARCH=arm64 go build -ldflags=\"-s -w\" -o package/dist/windows/arm64/aux4-repository.exe .",
+            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local GOOS=windows GOARCH=386 go build -ldflags=\"-s -w\" -o package/dist/windows/386/aux4-repository.exe ."
           ],
           "help": {
             "text": "build the app for windows"
@@ -73,7 +73,7 @@
         {
           "name": "local",
           "execute": [
-            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local go build -o package/aux4-repository ."
+            "cd ${packageDir} && CGO_ENABLED=0 GOTOOLCHAIN=local go build -ldflags=\"-s -w\" -o package/aux4-repository ."
           ],
           "help": {
             "text": "build the host binary into package/ for local test runs"
