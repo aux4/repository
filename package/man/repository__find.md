@@ -4,7 +4,7 @@ Expressions use standard comparison operators (=, !=, <>, <, <=, >, >=) and the 
 
 Use find when you need to filter records by content rather than by id. It complements repository write (to add records) and read (to fetch records by id or list all records). The command is intended for ad-hoc queries and scripting where you need flexible, SQL-like filtering over the JSON documents stored in the repository.
 
-**Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database (auth token read from the `TURSO_AUTH_TOKEN` environment variable). Behavior is identical on both backends.
+**Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database, and the literal value `cloud` resolves to the Turso database already provided by the aux4.cloud `turso:database` capability (via `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN`). For remote databases the auth token is read from the `TURSO_AUTH_TOKEN` environment variable. Behavior is identical on all backends.
 
 **Output rendering.** On an interactive terminal the JSON result is rendered as a table for readability; when the output is piped, redirected, or captured by another command it is emitted as compact single-line JSON (the whole array on one line, like `jq -c`), preserving number literals and key order. Pass `--render none` to force compact JSON even on a terminal.
 

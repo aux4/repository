@@ -9,7 +9,7 @@ patch is **update-only** — it is not an upsert. If the id does not exist, patc
 
 **Out of scope for this version:** patch does a shallow merge only — nested objects are replaced wholesale, not deep-merged — and it cannot delete/unset a field (a key can only be set or overridden). To change ttl/access without touching data, use `touch`.
 
-**Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database (auth token read from the `TURSO_AUTH_TOKEN` environment variable). Behavior is identical on both backends.
+**Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database, and the literal value `cloud` resolves to the Turso database already provided by the aux4.cloud `turso:database` capability (via `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN`). For remote databases the auth token is read from the `TURSO_AUTH_TOKEN` environment variable. Behavior is identical on all backends.
 
 #### Usage
 

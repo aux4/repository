@@ -23,8 +23,10 @@ claimed, so the caller must supply it (e.g. a webhook's event id).
 
 **Storage backends.** The `--db` value selects the backend by its scheme: a local file path (default
 `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a
-remote Turso/libSQL database. For remote databases the auth token is read from the `TURSO_AUTH_TOKEN`
-environment variable. Behavior — including the atomicity guarantee — is identical on both backends.
+remote Turso/libSQL database, and the literal value `cloud` resolves to the Turso database already
+provided by the aux4.cloud `turso:database` capability (via `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN`). For
+remote databases the auth token is read from the `TURSO_AUTH_TOKEN` environment variable. Behavior —
+including the atomicity guarantee — is identical on all backends.
 
 The optional `--ttl <seconds>` flag sets a time-to-live for the claim, same semantics as `write --ttl`:
 a duration in seconds converted to an absolute expiry epoch (`strftime('%s','now') + <ttl>`), merged into

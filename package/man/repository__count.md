@@ -2,7 +2,7 @@ The count command prints how many records match an optional filter, without retu
 
 The output is a single bare integer on one line. A count of `0` is a valid answer and exits with status 0 — unlike `read`/`find`, count does not use the empty-result exit-4 convention. There is no `--sort`, `--select`, `--limit`, or `--offset` (a count is always the total of the matching set).
 
-**Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database (auth token read from the `TURSO_AUTH_TOKEN` environment variable). Behavior is identical on both backends.
+**Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database, and the literal value `cloud` resolves to the Turso database already provided by the aux4.cloud `turso:database` capability (via `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN`). For remote databases the auth token is read from the `TURSO_AUTH_TOKEN` environment variable. Behavior is identical on all backends.
 
 **`--expr` filtering.** When `--expr` is empty, count returns the number of all visible records. When set, it accepts the same expression syntax as `find` (comparison operators, LIKE/NOT LIKE, and/or, parentheses, `json_extract(...)` for nested fields). Bare field references are rewritten to `json_extract(data, '$.field')`. As with `find`, an `--expr` containing the SQL comment or statement-terminator sequences `;`, `--`, or `/*` is rejected with a non-zero exit.
 

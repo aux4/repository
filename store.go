@@ -2,6 +2,8 @@ package main
 
 import (
 	_ "embed"
+	"errors"
+	"os"
 	"strings"
 )
 
@@ -64,10 +66,23 @@ type Store interface {
 	Close() error
 }
 
-// NewStore selects a backend based on the --db value. Remote schemes
-// (libsql://, ws(s)://, http(s)://) use the Turso/libSQL backend; anything else
-// (a file path or file: URL) uses the local pure-Go SQLite backend.
+// NewStore selects a backend based on the --db value. The special value
+// "cloud" means "use the Turso database provided by the aux4.cloud
+// turso:database capability": the machine's capability resolution writes the
+// database URL into the TURSO_DATABASE_URL environment variable (and the
+// matching auth token into TURSO_AUTH_TOKEN, read by newRemoteStore). Remote
+// schemes (libsql://, ws(s)://, http(s)://) use the Turso/libSQL backend;
+// anything else (a file path or file: URL) uses the local pure-Go SQLite
+// backend.
 func NewStore(db string) (Store, error) {
+	if db == "cloud" {
+		url := os.Getenv("TURSO_DATABASE_URL")
+		if url == "" {
+			return nil, errors.New("--db cloud needs the aux4.cloud turso:database capability; TURSO_DATABASE_URL is not set")
+		}
+		db = url
+	}
+
 	switch {
 	case strings.HasPrefix(db, "libsql://"),
 		strings.HasPrefix(db, "wss://"),

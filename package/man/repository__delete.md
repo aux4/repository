@@ -4,7 +4,7 @@ When multiple --id flags are provided the command deletes all matching records i
 
 This command is commonly used together with the write and read commands in workflows that insert, remove, and then validate records. See the read command for inspecting repository contents: [aux4 repository read](./read).
 
-**Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database (auth token read from the `TURSO_AUTH_TOKEN` environment variable). Behavior is identical on both backends.
+**Storage backends.** The `--db` value selects the backend by scheme: a local file path (default `.local.db`) uses an embedded SQLite database, while a `libsql://` / `wss://` / `https://` URL targets a remote Turso/libSQL database, and the literal value `cloud` resolves to the Turso database already provided by the aux4.cloud `turso:database` capability (via `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN`). For remote databases the auth token is read from the `TURSO_AUTH_TOKEN` environment variable. Behavior is identical on all backends.
 
 ### Example: Delete a single record
 Write a record, delete it by id, then confirm only the remaining records are present.

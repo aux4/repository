@@ -1,3 +1,18 @@
+# aux4/repository 1.3.12
+
+## Added
+
+- `--db cloud`: the literal value `cloud` resolves to the Turso database that
+  the aux4.cloud `turso:database` capability already provides to this
+  machine — the database URL comes from the `TURSO_DATABASE_URL` environment
+  variable, the auth token from `TURSO_AUTH_TOKEN` (both set by the capability
+  resolution, nothing to configure by hand). Fails fast with a clear error
+  ("--db cloud needs the aux4.cloud turso:database capability; TURSO_DATABASE_URL
+  is not set") when the environment is missing, instead of silently falling
+  back to a local file. Packages that compose on top of aux4/repository (e.g.
+  aux4/queue's `--provider repository` mode, or aux4/bot's state database)
+  pass `db: cloud` straight through with no changes of their own.
+
 # aux4/repository 1.3.9
 
 ## Added

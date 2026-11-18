@@ -47,6 +47,15 @@ Every command accepts `--db`, which selects the storage backend by its scheme:
   aux4 repository read users --db libsql://my-db.turso.io
   ```
 
+- **Cloud (`--db cloud`)** — the literal value `cloud` resolves to the Turso database that the aux4.cloud `turso:database` capability already provides to this machine: the database URL is read from the `TURSO_DATABASE_URL` environment variable, and its auth token from `TURSO_AUTH_TOKEN` (both set by the capability resolution before the command runs — nothing to configure by hand). Running `--db cloud` without that environment set up fails fast with a clear error rather than silently falling back to a local file.
+
+  ```bash
+  aux4 repository write users --db cloud --id u1 --data '{"name":"John"}'
+  aux4 repository read users --db cloud
+  ```
+
+  Packages that compose on top of aux4/repository (e.g. aux4/queue's `--provider repository` mode, or aux4/bot's state database) can pass `db: cloud` straight through — they don't need to know the real URL or token.
+
 **Authentication.** For remote databases, the auth token is read from the `TURSO_AUTH_TOKEN` environment variable and applied automatically (unless the URL already includes an `authToken` query parameter). No token is required for a local file or an unauthenticated server.
 
 The package is a single statically linked binary — it needs no `sqlite3`, `jq`, `sed`, or any other external tool installed, on either backend.
